@@ -1,0 +1,372 @@
+/* ===== ADMIN DASHBOARD PAGE ===== */
+
+/* ── Greeting Section ──────────────────────────────────────── */
+.greeting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.greetingText h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 4px;
+    letter-spacing: -0.5px;
+}
+
+.greetingText p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+}
+
+.castVoteBtn {
+    padding: 12px 32px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.25);
+}
+
+.castVoteBtn:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+}
+
+/* ── Stats Grid ────────────────────────────────────────────── */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 32px;
+}
+
+.statCard {
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.statCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.statHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.statIconWrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.statIconBlue   { background: #eff6ff; }
+.statIconGreen  { background: #f0fdf4; }
+.statIconYellow { background: #fefce8; }
+.statIconPurple { background: #faf5ff; }
+
+.statBadge {
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.statValue {
+    font-size: 28px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+}
+
+.statLabel {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* ── Campaigns Section ─────────────────────────────────────── */
+.campaignsSection {
+    margin-bottom: 28px;
+}
+
+.campaignsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.campaignsTitle {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.3px;
+}
+
+.campaignsNav {
+    display: flex;
+    gap: 8px;
+}
+
+.campaignsNavBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #64748b;
+    transition: all 0.15s;
+}
+
+.campaignsNavBtn:hover {
+    background: #0f172a;
+    color: white;
+    border-color: #0f172a;
+}
+
+/* ── Campaign Cards Grid ───────────────────────────────────── */
+.campaignsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.campaignCard {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.campaignCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.campaignThumb {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.campaignThumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.playBtn {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.playIcon {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 7px 0 7px 12px;
+    border-color: transparent transparent transparent #0f172a;
+    margin-left: 2px;
+}
+
+.campaignBody {
+    padding: 14px 16px;
+}
+
+.campaignName {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+.campaignProgress {
+    width: 100%;
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.campaignProgressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #dc2626, #f87171);
+    border-radius: 3px;
+    position: relative;
+}
+
+.campaignMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.campaignPercentage {
+    font-size: 12px;
+    font-weight: 700;
+    color: #dc2626;
+}
+
+.fireEmoji {
+    font-size: 14px;
+}
+
+/* ── Empty state ───────────────────────────────────────────── */
+.emptyState {
+    text-align: center;
+    padding: 48px 20px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* ── Section Card wrapper ──────────────────────────────────── */
+.sectionCard {
+    background: white;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    margin-bottom: 20px;
+}
+
+.sectionCardTitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 14px;
+}
+
+/* ── Recent Activity ───────────────────────────────────────── */
+.activityList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.activityItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: #fef7f8;
+    border-radius: 10px;
+    transition: background 0.15s;
+}
+
+.activityItem:hover {
+    background: #fef2f4;
+}
+
+.activityIcon {
+    width: 34px;
+    height: 34px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.activityContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.activityText {
+    font-size: 13px;
+    color: #334155;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.activityTime {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 1280px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .campaignsGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .campaignsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .greeting {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .campaignsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .statValue {
+        font-size: 24px;
+    }
+}

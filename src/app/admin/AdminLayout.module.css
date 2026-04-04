@@ -1,0 +1,463 @@
+/* ===== ADMIN LAYOUT — Light Blush Theme ===== */
+
+.adminContainer {
+    display: flex;
+    min-height: 100vh;
+    background: #fef2f4;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────── */
+.sidebar {
+    width: 220px;
+    background: linear-gradient(180deg, #f8f0f2 0%, #fef2f4 100%);
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 24px 14px;
+    position: relative;
+    z-index: 10;
+}
+
+.sidebarHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding: 0 6px;
+}
+
+.logoBadge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.logoIcon {
+    width: 28px;
+    height: 28px;
+    background: #0f172a;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logoIcon svg {
+    width: 14px;
+    height: 14px;
+    color: white;
+}
+
+.logoText {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+}
+
+.toggleArrows {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+}
+
+.toggleArrow {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    cursor: pointer;
+    font-size: 10px;
+    color: #64748b;
+    transition: all 0.15s;
+}
+
+.toggleArrow:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* ── Nav ───────────────────────────────────────────────────── */
+.sidebarNav {
+    flex: 1;
+    padding: 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    color: #64748b;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: all 0.15s;
+    border-radius: 10px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.navLink:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: #0f172a;
+}
+
+.navLinkActive {
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.navLinkActive:hover {
+    background: #1e293b;
+    color: #ffffff;
+}
+
+.navIcon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.navLabel {
+    flex: 1;
+    white-space: nowrap;
+}
+
+/* ── Sidebar Footer ────────────────────────────────────────── */
+.sidebarFooter {
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.logoutBtn {
+    width: 100%;
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+}
+
+.logoutBtn:hover {
+    color: #dc2626 !important;
+    background: #fef2f2 !important;
+}
+
+/* ── Main Content ──────────────────────────────────────────── */
+.mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+/* ── Top Bar ───────────────────────────────────────────────── */
+.topbar {
+    height: 64px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    flex-shrink: 0;
+}
+
+.searchBar {
+    position: relative;
+    width: 320px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #dc2626;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 10px 80px 10px 38px;
+    font-size: 13px;
+    color: #0f172a;
+    background: #fff;
+    border: 1.5px solid #f9c4cb;
+    border-radius: 12px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.searchInput::placeholder {
+    color: #e8a0aa;
+}
+
+.searchInput:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+}
+
+.searchShortcut {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.shortcutKey {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.topbarRight {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.notificationBtn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.15s;
+    color: #64748b;
+}
+
+.notificationBtn:hover {
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.userProfile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 6px 10px 6px 6px;
+    border-radius: 12px;
+    transition: background 0.15s;
+}
+
+.userProfile:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.userAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.userAvatar svg {
+    width: 18px;
+    height: 18px;
+    color: white;
+}
+
+.userName {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.userDropdown {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-left: -4px;
+}
+
+.pageTitle {
+    display: none;
+}
+
+/* ── Content Wrapper ───────────────────────────────────────── */
+.contentWrapper {
+    padding: 0 28px 28px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* ── Mobile Menu Toggle ────────────────────────────────────── */
+.menuToggle {
+    display: none;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.mobileOverlay {
+    display: none;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 72px;
+        padding: 20px 10px;
+        align-items: center;
+    }
+
+    .sidebarHeader {
+        justify-content: center;
+    }
+
+    .logoText,
+    .toggleArrows,
+    .navLabel {
+        display: none;
+    }
+
+    .navLink {
+        justify-content: center;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .navIcon {
+        font-size: 18px;
+        width: auto;
+    }
+
+    .topbar {
+        padding: 0 20px;
+    }
+
+    .searchBar {
+        width: 240px;
+    }
+
+    .contentWrapper {
+        padding: 0 20px 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -240px;
+        top: 0;
+        bottom: 0;
+        width: 220px;
+        z-index: 1000;
+        transition: left 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: none;
+        padding: 24px 14px;
+    }
+
+    .sidebar.sidebarOpen {
+        left: 0;
+        box-shadow: 8px 0 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .logoText,
+    .toggleArrows,
+    .navLabel {
+        display: block;
+    }
+
+    .sidebarHeader {
+        justify-content: flex-start;
+    }
+
+    .navLink {
+        justify-content: flex-start;
+        padding: 10px 12px;
+    }
+
+    .navIcon {
+        font-size: 16px;
+        width: 20px;
+    }
+
+    .menuToggle {
+        display: flex;
+    }
+
+    .mobileOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+    }
+
+    .mobileOverlay.overlayVisible {
+        display: block;
+    }
+
+    .topbar {
+        padding: 0 16px;
+    }
+
+    .searchBar {
+        width: 180px;
+    }
+
+    .searchShortcut {
+        display: none;
+    }
+
+    .contentWrapper {
+        padding: 0 16px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .searchBar {
+        width: 140px;
+    }
+
+    .userName {
+        display: none;
+    }
+
+    .userDropdown {
+        display: none;
+    }
+}
