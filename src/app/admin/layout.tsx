@@ -7,14 +7,12 @@ import styles from './AdminLayout.module.css';
 
 const navItems = [
     { label: 'Dashboard', href: '/admin', icon: '📊' },
-    { label: 'All Campaigns', href: '/admin/campaigns', icon: '📋' },
+    { label: 'Charities', href: '/admin/charities', icon: '📋' },
     { label: 'Video Submission', href: '/admin/videos', icon: '🎬' },
-    { label: 'Leaderboard', href: '/admin/leaderboard', icon: '🏆' },
-    { label: 'Activities', href: '/admin/activities', icon: '⚡' },
-    { label: 'Subscription', href: '/admin/subscription', icon: '💳' },
-    { label: 'Reports', href: '/admin/reports', icon: '📈' },
+    { label: 'Voting Cycles', href: '/admin/votes', icon: '🗳️' },
     { label: 'Members', href: '/admin/members', icon: '👥' },
-    { label: 'Causes', href: '/admin/causes', icon: '🎯' },
+    { label: 'Payouts', href: '/admin/payouts', icon: '💳' },
+    { label: 'Analytics', href: '/admin/analytics', icon: '📈' },
 ];
 
 const bottomItems = [
@@ -23,7 +21,7 @@ const bottomItems = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    const { user, loading, logout } = useAuth();
+    const { user, isLoading: loading, logout } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);

@@ -132,15 +132,6 @@ export default function AdminLoginPage() {
                     <button type="button" className={styles.socialBtn} onClick={handleGoogleSSO} aria-label="Google">
                         G
                     </button>
-                    <button type="button" className={styles.socialBtn} aria-label="Apple">
-                        
-                    </button>
-                    <button type="button" className={styles.socialBtn} aria-label="Twitter">
-                        t
-                    </button>
-                    <button type="button" className={styles.socialBtn} aria-label="LinkedIn">
-                        in
-                    </button>
                 </div>
 
                 <p className={styles.footer}>
