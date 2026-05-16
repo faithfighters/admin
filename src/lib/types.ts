@@ -3,6 +3,7 @@ export interface User {
     name: string;
     email: string;
     role: 'member' | 'admin' | 'moderator';
+    image?: string;
     plan?: 'basic' | 'standard' | 'premium';
     votesRemaining?: number;
     votesTotal?: number;
@@ -34,7 +35,7 @@ export interface Video {
     authorName: string;
     causeTag: string;
     status: 'pending' | 'approved' | 'rejected';
-    submittedAt: string;
+    createdAt: string;
     beneficiaryName?: string;
     urgencyReason?: string;
     targetAmount?: number;

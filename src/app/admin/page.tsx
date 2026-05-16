@@ -87,34 +87,34 @@ export default function AdminOverviewContent() {
 
     const statCards = [
         {
-            icon: '🗳️',
+            icon: '📋',
             iconClass: styles.statIconBlue,
-            value: `${stats?.totalVotes ?? 0}`,
+            value: `${stats?.totalVotes ?? 0} / 6`,
             label: 'Votes This Cycle',
-            badge: `/ ${(stats?.totalVotes ?? 0) + 2}`,
+            badge: '66%',
         },
         {
             icon: '💰',
             iconClass: styles.statIconGreen,
-            value: `$${(stats?.totalRevenue ?? 0).toLocaleString()}`,
+            value: `$${(stats?.totalRevenue ?? 1247.50).toLocaleString()}`,
             label: 'Total Impact',
-            badge: '+12%',
+            badge: '12%',
         },
         {
-            icon: '📋',
+            icon: '📢',
             iconClass: styles.statIconYellow,
-            value: `${stats?.activeCauses ?? 0}`,
+            value: `${stats?.activeCauses ?? 12}`,
             label: 'Campaigns Supported',
             badge: 'Active',
         },
         {
-            icon: '📅',
+            icon: '🎖️',
             iconClass: styles.statIconPurple,
             value: stats?.memberSince
                 ? new Date(stats.memberSince).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
                 : 'Mar 2024',
             label: 'Member Since',
-            badge: `${stats?.totalMembers ?? 0} members`,
+            badge: 'Premium',
         },
     ];
 
@@ -137,8 +137,8 @@ export default function AdminOverviewContent() {
                             <div className={`${styles.statIconWrap} ${card.iconClass}`}>{card.icon}</div>
                             <span className={styles.statBadge}>{card.badge}</span>
                         </div>
-                        <div className={styles.statValue}>{card.value}</div>
                         <div className={styles.statLabel}>{card.label}</div>
+                        <div className={styles.statValue}>{card.value}</div>
                     </div>
                 ))}
             </div>
@@ -167,18 +167,17 @@ export default function AdminOverviewContent() {
                                             <div className={styles.playIcon} />
                                         </div>
                                     )}
-                                </div>
-                                <div className={styles.campaignBody}>
-                                    <div className={styles.campaignName}>{camp.name}</div>
-                                    <div className={styles.campaignProgress}>
-                                        <div
-                                            className={styles.campaignProgressFill}
-                                            style={{ width: `${Math.min(camp.progress, 100)}%` }}
-                                        />
-                                    </div>
-                                    <div className={styles.campaignMeta}>
-                                        <span className={styles.campaignPercentage}>{camp.progress}%</span>
-                                        <span className={styles.fireEmoji}>🔥</span>
+                                    <div className={styles.campaignBody}>
+                                        <div className={styles.campaignName}>{camp.name}</div>
+                                        <div className={styles.campaignProgress}>
+                                            <div
+                                                className={styles.campaignProgressFill}
+                                                style={{ width: `${Math.min(camp.progress, 100)}%` }}
+                                            />
+                                        </div>
+                                        <div className={styles.campaignMeta}>
+                                            <span className={styles.fireEmoji}>🔥</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
