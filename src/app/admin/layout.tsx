@@ -30,12 +30,11 @@ const navItems = [
     { label: 'Leaderboard', href: '/admin/leaderboard', icon: <Trophy size={20} /> },
     { label: 'Activities', href: '/admin/activities', icon: <Activity size={20} /> },
     { label: 'Subscription', href: '/admin/payouts', icon: <CreditCard size={20} /> },
-    { label: 'Reports', href: '/admin/votes', icon: <Folder size={20} /> },
+    { label: 'Reports', href: '/admin/reports', icon: <Folder size={20} /> },
 ];
 
 const bottomItems = [
     { label: 'My Profile', href: '/admin/profile', icon: <User size={20} /> },
-    { label: 'Settings', href: '/admin/settings', icon: <Settings size={20} /> },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 import styles from '../page.module.css';
-import { Search, Filter, Play } from 'lucide-react';
+import { Search } from 'lucide-react';
+import VideoPlayerModal from '@/components/shared/VideoPlayerModal';
+import { useAuth } from '@/context/AuthContext';
 
 interface Video {
     id: string;
@@ -12,6 +15,7 @@ interface Video {
     description: string;
     thumbnailUrl?: string;
     videoUrl: string;
+    authorId?: string;
     authorName: string;
     causeTag: string;
     status: 'pending' | 'approved' | 'rejected';
@@ -21,33 +25,56 @@ interface Video {
 export default function AllCampaignsPage() {
     return (
         <ProtectedRoute adminOnly>
-            <CampaignsContent />
+            <Suspense fallback={<div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>Loading campaigns...</div>}>
+                <CampaignsContent />
+            </Suspense>
         </ProtectedRoute>
     );
 }
 
 function CampaignsContent() {
+    const { user } = useAuth();
     const [videos, setVideos] = useState<Video[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('all');
+    const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+    const [votesRemaining, setVotesRemaining] = useState<number>(0);
+    const [votesTotal, setVotesTotal] = useState<number>(0);
+    const searchParams = useSearchParams();
+    const playId = searchParams.get('play');
 
     useEffect(() => {
-        console.log('[AllCampaignsPage] Fetching campaigns...');
-        fetch('/api/videos/admin/all', { credentials: 'include' })
+        fetch('/api/admin/videos', { credentials: 'include' })
             .then((r) => {
                 if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
                 return r.json();
             })
             .then((data) => {
-                console.log('[AllCampaignsPage] Data received:', data);
-                setVideos(data.videos || []);
+                const fetchedVideos = data.videos || [];
+                setVideos(fetchedVideos);
+                if (playId) {
+                    const videoToPlay = fetchedVideos.find((v: Video) => v.id === playId);
+                    if (videoToPlay) setSelectedVideo(videoToPlay);
+                }
             })
-            .catch((err) => {
-                console.error('[AllCampaignsPage] Fetch error:', err);
-            })
+            .catch(console.error)
             .finally(() => setLoading(false));
-    }, []);
+
+        // Fetch user vote balance
+        fetch('/api/votes', { credentials: 'include' })
+            .then(r => r.json())
+            .then(votesData => {
+                if (Array.isArray(votesData.userVotes)) {
+                    const used = (votesData.userVotes as { count: number }[]).reduce((s, v) => s + v.count, 0);
+                    const total = user?.votesTotal ?? 0;
+                    setVotesTotal(total);
+                    setVotesRemaining(Math.max(0, total - used));
+                }
+            })
+            .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [playId]);
 
     const filteredVideos = videos.filter(v => {
         const matchesSearch = v.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -105,10 +132,25 @@ function CampaignsContent() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             whileHover={{ y: -8 }}
+                            onClick={() => setSelectedVideo(video)}
+                            style={{ cursor: 'pointer' }}
                         >
                             <div className={styles.campaignThumb}>
-                                {video.thumbnailUrl || video.videoUrl ? (
-                                    <img src={video.thumbnailUrl || video.videoUrl} alt={video.title} />
+                                {video.thumbnailUrl ? (
+                                    <img src={video.thumbnailUrl} alt={video.title} />
+                                ) : video.videoUrl ? (
+                                    <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <video 
+                                            src={video.videoUrl} 
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                            preload="metadata"
+                                            muted
+                                            playsInline
+                                        />
+                                        <div className={styles.playBtn}>
+                                            <div className={styles.playIcon} />
+                                        </div>
+                                    </div>
                                 ) : (
                                     <div className={styles.playBtn}>
                                         <div className={styles.playIcon} />
@@ -140,6 +182,17 @@ function CampaignsContent() {
                         </motion.div>
                     ))}
                 </div>
+            )}
+
+            {selectedVideo && (
+                <VideoPlayerModal 
+                    video={selectedVideo} 
+                    onClose={() => setSelectedVideo(null)}
+                    currentUserId={user?.id}
+                    votesRemaining={votesRemaining}
+                    votesTotal={votesTotal}
+                    onVoteCast={(newRemaining) => setVotesRemaining(newRemaining)}
+                />
             )}
         </div>
     );
