@@ -74,7 +74,11 @@ export default function LoginPage() {
 
         const result = await login(email, password);
         if (result.success) {
-            router.push('/admin');
+            if (result.role === 'admin' || result.role === 'moderator') {
+                router.push('/admin');
+            } else {
+                setError('Access denied. This portal is for administrators only.');
+            }
         } else {
             setError(result.error || 'Invalid credentials. Please try again.');
         }
