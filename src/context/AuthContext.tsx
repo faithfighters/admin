@@ -6,7 +6,7 @@ import { User } from '@/lib/types';
 interface AuthContextType {
     user: User | null;
     isLoading: boolean;
-    login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    login: (email: string, password: string) => Promise<{ success: boolean; role?: string; error?: string }>;
     register: (name: string, email: string, password: string, plan: 'basic' | 'standard' | 'premium') => Promise<{ success: boolean; error?: string }>;
     logout: () => void;
     isAdmin: boolean;
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    const login = async (email: string, password: string): Promise<{ success: boolean; role?: string; error?: string }> => {
         try {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const data = await res.json();
             if (res.ok) {
                 setUser(data.user);
-                return { success: true };
+                return { success: true, role: data.user.role };
             }
             return { success: false, error: data.message || data.error || 'Invalid email or password.' };
         } catch {
