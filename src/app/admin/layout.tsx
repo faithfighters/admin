@@ -47,10 +47,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (!loading) {
             if (!user) {
                 router.replace('/login');
-            } else if (user.role !== 'admin' && user.role !== 'moderator') {
-                // Member accounts cannot access the admin portal — send them back to the main site
-                window.location.href = 'http://localhost:3000';
             }
+            // Allowing all logged in users to access the dashboard
         }
     }, [user, loading, router]);
 
