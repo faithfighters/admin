@@ -49,6 +49,9 @@ export interface Video {
         phone?: string;
         accountNumber?: string;
     };
+    isReported?: boolean;
+    reportCount?: number;
+    reportReasons?: string[];
 }
 
 export interface VotingCycle {

@@ -24,13 +24,13 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-    { label: 'Dashboard', href: '/admin', icon: <LayoutDashboard size={20} /> },
-    { label: 'All Campaigns', href: '/admin/charities', icon: <Grid size={20} /> },
-    { label: 'Video Submission', href: '/admin/videos', icon: <Video size={20} /> },
-    { label: 'Leaderboard', href: '/admin/leaderboard', icon: <Trophy size={20} /> },
-    { label: 'Activities', href: '/admin/activities', icon: <Activity size={20} /> },
-    { label: 'Subscription', href: '/admin/payouts', icon: <CreditCard size={20} /> },
-    { label: 'Reports', href: '/admin/reports', icon: <Folder size={20} /> },
+    { label: 'Dashboard', href: '/admin', icon: <LayoutDashboard size={20} />, adminOnly: false },
+    { label: 'All Campaigns', href: '/admin/charities', icon: <Grid size={20} />, adminOnly: false },
+    { label: 'Video Submission', href: '/admin/videos', icon: <Video size={20} />, adminOnly: false },
+    { label: 'Leaderboard', href: '/admin/leaderboard', icon: <Trophy size={20} />, adminOnly: false },
+    { label: 'Activities', href: '/admin/activities', icon: <Activity size={20} />, adminOnly: false },
+    { label: 'Subscription', href: '/admin/payouts', icon: <CreditCard size={20} />, adminOnly: false },
+    { label: 'Reports', href: '/admin/reports', icon: <Folder size={20} />, adminOnly: true },
 ];
 
 const bottomItems = [
@@ -44,8 +44,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [mobileOpen, setMobileOpen] = useState(false);
 
     useEffect(() => {
-        if (!loading && (!user || (user.role !== 'admin' && user.role !== 'moderator'))) {
-            router.replace('/login');
+        if (!loading) {
+            if (!user) {
+                router.replace('/login');
+            } else if (user.role !== 'admin' && user.role !== 'moderator') {
+                // Member accounts cannot access the admin portal — send them back to the main site
+                window.location.href = 'http://localhost:3000';
+            }
         }
     }, [user, loading, router]);
 
@@ -98,7 +103,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
 
                 <nav className={styles.sidebarNav}>
-                    {navItems.map((item) => {
+                    {navItems.filter(item => !item.adminOnly || user.role === 'admin').map((item) => {
                         const isActive = pathname === item.href ||
                             (item.href !== '/admin' && pathname.startsWith(item.href));
                         return (

@@ -24,9 +24,20 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, user, isLoading: authLoading } = useAuth();
     const router = useRouter();
     const mobileScrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!authLoading && user) {
+            if (user.role === 'admin' || user.role === 'moderator') {
+                router.replace('/admin');
+            } else {
+                // Member account — show access denied immediately, no login form
+                setError('Access denied. This portal is for administrators only.');
+            }
+        }
+    }, [user, authLoading, router]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -159,7 +170,8 @@ export default function LoginPage() {
 
                 {error && <div className={styles.error}>{error}</div>}
 
-                <form onSubmit={handleSubmit} className={styles.form}>
+                {/* Hide the form if a non-admin user is already authenticated */}
+                {user && user.role !== 'admin' && user.role !== 'moderator' ? null : <form onSubmit={handleSubmit} className={styles.form}>
                     <div className={styles.fieldRow}>
                         <div className={styles.labelRow}>
                             <label htmlFor="email" className={styles.label}>Email Address</label>
@@ -188,8 +200,9 @@ export default function LoginPage() {
                     <button type="submit" className={styles.submitBtn} disabled={loading}>
                         {loading ? 'Authenticating…' : 'Sign In'}
                     </button>
-                </form>
+                </form>}
 
+                {(!user || user.role === 'admin' || user.role === 'moderator') && (<>
                 <div className={styles.divider}>
                     <span className={styles.dividerLine} />
                     <span className={styles.dividerText}>Or sign in with</span>
@@ -201,13 +214,15 @@ export default function LoginPage() {
                         <span style={{ fontWeight: 'bold' }}>G</span>
                     </button>
                 </div>
+                </>)}
 
-                <p className={styles.footer}>
-                    New to Faith Fighter of America?{' '}
-                    <a href="/register" className={styles.footerLink}>
-                        Create an account
-                    </a>
-                </p>
+                {user && (user.role !== 'admin' && user.role !== 'moderator') && (
+                    <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+                        <a href="http://localhost:3000" style={{ color: '#e63946', fontWeight: 600 }}>
+                            Return to main site →
+                        </a>
+                    </p>
+                )}
             </div>
         </div>
     );
