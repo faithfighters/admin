@@ -7,7 +7,9 @@ import { useAuth } from '@/context/AuthContext';
 import { PLAN_CONFIG, PlanKey } from '@/lib/types';
 import styles from './page.module.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+// const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+console.log('[Admin] NEXT_PUBLIC_API_URL in register/page.tsx:', process.env.NEXT_PUBLIC_API_URL);
 
 const floatingDonors = [
     { name: 'Jordan S.', amount: '$400', image: 'https://i.pravatar.cc/150?u=1' },
