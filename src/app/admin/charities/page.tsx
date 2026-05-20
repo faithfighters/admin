@@ -161,11 +161,26 @@ function CampaignsContent() {
                                     </div>
                                 )}
                                 
-                                <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
-                                    <span className={`${styles.statusBadge} ${video.status === 'pending' ? styles.statusPending : video.status === 'approved' ? styles.statusApproved : styles.statusRejected}`}>
-                                        {video.status}
-                                    </span>
-                                </div>
+                                {isStaff && (
+                                    <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
+                                        <span style={{
+                                            padding: '4px 10px',
+                                            borderRadius: '8px',
+                                            fontSize: '11px',
+                                            fontWeight: 800,
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.4px',
+                                            backgroundColor:
+                                                video.status === 'approved' ? '#dcfce7' :
+                                                video.status === 'pending'  ? '#fef9c3' : '#fee2e2',
+                                            color:
+                                                video.status === 'approved' ? '#15803d' :
+                                                video.status === 'pending'  ? '#92400e' : '#b91c1c',
+                                        }}>
+                                            {video.status === 'pending' ? '⏳ Pending' : video.status === 'approved' ? '✓ Approved' : '✕ Rejected'}
+                                        </span>
+                                    </div>
+                                )}
 
                                 <div className={styles.campaignBody}>
                                     <div className={styles.campaignName}>{video.title}</div>
