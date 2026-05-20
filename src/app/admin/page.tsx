@@ -115,9 +115,9 @@ export default function AdminOverviewContent() {
         {
             icon: '📋',
             iconClass: styles.statIconBlue,
-            value: `${stats?.totalVotes ?? 0} / 6`,
+            value: votesTotal > 0 ? `${votesRemaining} / ${votesTotal}` : 'No Plan',
             label: 'Votes This Cycle',
-            badge: '66%',
+            badge: votesTotal > 0 ? `${Math.round((votesRemaining / votesTotal) * 100)}%` : '—',
         },
         {
             icon: '💰',

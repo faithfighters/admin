@@ -16,7 +16,7 @@ interface ActivityItem {
 
 export default function ActivitiesPage() {
     return (
-        <ProtectedRoute adminOnly>
+        <ProtectedRoute>
             <ActivitiesContent />
         </ProtectedRoute>
     );

@@ -24,7 +24,7 @@ interface Video {
 
 export default function AllCampaignsPage() {
     return (
-        <ProtectedRoute adminOnly>
+        <ProtectedRoute>
             <Suspense fallback={<div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>Loading campaigns...</div>}>
                 <CampaignsContent />
             </Suspense>
@@ -34,6 +34,7 @@ export default function AllCampaignsPage() {
 
 function CampaignsContent() {
     const { user } = useAuth();
+    const isStaff = user?.role === 'admin' || user?.role === 'moderator';
     const [videos, setVideos] = useState<Video[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -45,7 +46,8 @@ function CampaignsContent() {
     const playId = searchParams.get('play');
 
     useEffect(() => {
-        fetch('/api/admin/videos', { credentials: 'include' })
+        const endpoint = isStaff ? '/api/admin/videos' : '/api/videos';
+        fetch(endpoint, { credentials: 'include' })
             .then((r) => {
                 if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
                 return r.json();
@@ -74,7 +76,7 @@ function CampaignsContent() {
             })
             .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [playId]);
+    }, [playId, user?.role]);
 
     const filteredVideos = videos.filter(v => {
         const matchesSearch = v.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -96,26 +98,28 @@ function CampaignsContent() {
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <div style={{ position: 'relative' }}>
                         <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                        <input 
-                            type="text" 
-                            placeholder="Search campaigns..." 
+                        <input
+                            type="text"
+                            placeholder="Search campaigns..."
                             className={styles.formInput}
                             style={{ paddingLeft: '40px', width: '260px' }}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <select 
-                        className={styles.formSelect}
-                        style={{ width: '150px' }}
-                        value={filterStatus}
-                        onChange={(e) => setFilterStatus(e.target.value)}
-                    >
-                        <option value="all">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
+                    {isStaff && (
+                        <select
+                            className={styles.formSelect}
+                            style={{ width: '150px' }}
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                        >
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    )}
                 </div>
             </div>
 

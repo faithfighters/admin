@@ -50,6 +50,7 @@ export default function VideoPlayerModal({
 
     // Voting state
     const [myVotes, setMyVotes] = useState(0);
+    const [pendingVotes, setPendingVotes] = useState(0); // staged but not yet submitted
     const [localRemaining, setLocalRemaining] = useState(votesRemaining);
     const [votingStatus, setVotingStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
     const [voteError, setVoteError] = useState('');
@@ -155,43 +156,40 @@ export default function VideoPlayerModal({
         finally { setReporting(false); }
     };
 
-    const castVote = async (change: 1 | -1) => {
-        if (!matchedCause) return;
-        if (change > 0 && localRemaining < 1) return;
-        if (change < 0 && myVotes < 1) return;
+    const stagedTotal = myVotes + pendingVotes;
+    const stagedRemaining = localRemaining - pendingVotes;
 
-        const nextVotes = myVotes + change;
-        const nextRemaining = localRemaining - change;
+    const adjustPending = (change: 1 | -1) => {
+        if (change > 0 && stagedRemaining < 1) return;
+        if (change < 0 && stagedTotal < 1) return;
+        setPendingVotes(p => p + change);
+    };
 
-        // Optimistic update
-        setMyVotes(nextVotes);
-        setLocalRemaining(nextRemaining);
+    const submitVotes = async () => {
+        if (!matchedCause || stagedTotal === myVotes) return;
         setVotingStatus('saving');
         setVoteError('');
-
         try {
             const res = await fetch('/api/votes', {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ causeId: matchedCause.id, count: change }),
+                body: JSON.stringify({ allocation: { [matchedCause.id]: stagedTotal } }),
             });
-
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}));
-                setMyVotes(myVotes);
-                setLocalRemaining(localRemaining);
                 setVotingStatus('error');
                 setVoteError(errData.message || 'Failed to save vote.');
                 setTimeout(() => { setVotingStatus('idle'); setVoteError(''); }, 3000);
             } else {
+                setMyVotes(stagedTotal);
+                setPendingVotes(0);
+                setLocalRemaining(stagedRemaining);
                 setVotingStatus('success');
-                onVoteCast?.(nextRemaining);
+                onVoteCast?.(stagedRemaining);
                 setTimeout(() => setVotingStatus('idle'), 1500);
             }
         } catch {
-            setMyVotes(myVotes);
-            setLocalRemaining(localRemaining);
             setVotingStatus('error');
             setVoteError('Network error. Please try again.');
             setTimeout(() => { setVotingStatus('idle'); setVoteError(''); }, 3000);
@@ -342,30 +340,49 @@ export default function VideoPlayerModal({
                                 {/* +/− controls */}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
                                     <button
-                                        onClick={() => castVote(-1)}
-                                        disabled={myVotes < 1 || votingStatus === 'saving'}
-                                        style={voteCtrlBtn(myVotes < 1 || votingStatus === 'saving', false)}
-                                        onMouseEnter={e => { if (myVotes > 0) e.currentTarget.style.transform = 'scale(1.1)'; }}
+                                        onClick={() => adjustPending(-1)}
+                                        disabled={stagedTotal < 1 || votingStatus === 'saving'}
+                                        style={voteCtrlBtn(stagedTotal < 1 || votingStatus === 'saving', false)}
+                                        onMouseEnter={e => { if (stagedTotal > 0) e.currentTarget.style.transform = 'scale(1.1)'; }}
                                         onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                                     >−</button>
 
                                     <div style={{ textAlign: 'center', minWidth: '80px' }}>
                                         <div style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>
-                                            {myVotes}
+                                            {stagedTotal}
                                         </div>
                                         <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, marginTop: '2px' }}>
-                                            votes cast
+                                            votes
                                         </div>
                                     </div>
 
                                     <button
-                                        onClick={() => castVote(1)}
-                                        disabled={localRemaining < 1 || votingStatus === 'saving'}
-                                        style={voteCtrlBtn(localRemaining < 1 || votingStatus === 'saving', true)}
-                                        onMouseEnter={e => { if (localRemaining > 0) e.currentTarget.style.transform = 'scale(1.1)'; }}
+                                        onClick={() => adjustPending(1)}
+                                        disabled={stagedRemaining < 1 || votingStatus === 'saving'}
+                                        style={voteCtrlBtn(stagedRemaining < 1 || votingStatus === 'saving', true)}
+                                        onMouseEnter={e => { if (stagedRemaining > 0) e.currentTarget.style.transform = 'scale(1.1)'; }}
                                         onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                                     >+</button>
                                 </div>
+
+                                {/* Submit button */}
+                                {stagedTotal !== myVotes && votingStatus !== 'success' && (
+                                    <button
+                                        onClick={submitVotes}
+                                        disabled={votingStatus === 'saving'}
+                                        style={{
+                                            width: '100%', padding: '10px', borderRadius: '12px', border: 'none',
+                                            backgroundColor: votingStatus === 'saving' ? '#e2e8f0' : '#dc2626',
+                                            color: votingStatus === 'saving' ? '#94a3b8' : '#ffffff',
+                                            fontSize: '14px', fontWeight: 700, cursor: votingStatus === 'saving' ? 'not-allowed' : 'pointer',
+                                            marginBottom: '10px', transition: 'all 0.2s',
+                                        }}
+                                        onMouseEnter={e => { if (votingStatus !== 'saving') e.currentTarget.style.backgroundColor = '#b91c1c'; }}
+                                        onMouseLeave={e => { if (votingStatus !== 'saving') e.currentTarget.style.backgroundColor = '#dc2626'; }}
+                                    >
+                                        {votingStatus === 'saving' ? '⏳ Submitting…' : `Submit ${stagedTotal} Vote${stagedTotal !== 1 ? 's' : ''}`}
+                                    </button>
+                                )}
 
                                 {/* Status feedback */}
                                 {(votingStatus !== 'idle' || voteError) && (
@@ -375,8 +392,7 @@ export default function VideoPlayerModal({
                                         backgroundColor: votingStatus === 'success' ? '#f0fdf4' : votingStatus === 'error' ? '#fef2f2' : '#f8fafc',
                                         color: votingStatus === 'success' ? '#16a34a' : votingStatus === 'error' ? '#dc2626' : '#64748b',
                                     }}>
-                                        {votingStatus === 'saving' && '⏳ Saving your vote…'}
-                                        {votingStatus === 'success' && '✅ Vote recorded!'}
+                                        {votingStatus === 'success' && '✅ Vote submitted!'}
                                         {votingStatus === 'error' && `❌ ${voteError}`}
                                     </div>
                                 )}
@@ -384,9 +400,9 @@ export default function VideoPlayerModal({
                                 {/* Vote balance */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <span style={{ fontSize: '12px', color: '#dc2626', fontWeight: 700 }}>
-                                        {localRemaining} of {votesTotal} votes remaining
+                                        {stagedRemaining} of {votesTotal} votes remaining
                                     </span>
-                                    {localRemaining === 0 && (
+                                    {stagedRemaining === 0 && (
                                         <span style={{ fontSize: '11px', color: '#94a3b8' }}>Upgrade for more votes</span>
                                     )}
                                 </div>

@@ -21,7 +21,7 @@ interface Member {
 
 export default function LeaderboardPage() {
     return (
-        <ProtectedRoute adminOnly>
+        <ProtectedRoute>
             <LeaderboardContent />
         </ProtectedRoute>
     );

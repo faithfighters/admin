@@ -7,7 +7,7 @@ import styles from '../page.module.css';
 
 export default function AdminMembersPage() {
     return (
-        <ProtectedRoute adminOnly>
+        <ProtectedRoute>
             <MembersContent />
         </ProtectedRoute>
     );

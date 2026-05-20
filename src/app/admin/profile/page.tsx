@@ -8,7 +8,7 @@ import { User, Shield, Key, CheckCircle, AlertCircle, RefreshCw, Camera } from '
 
 export default function ProfilePage() {
     return (
-        <ProtectedRoute adminOnly>
+        <ProtectedRoute>
             <ProfileContent />
         </ProtectedRoute>
     );

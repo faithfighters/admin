@@ -6,18 +6,21 @@ import { Video } from '@/lib/types';
 import styles from '../page.module.css';
 import { Upload, Film, CheckCircle, XCircle, Clock } from 'lucide-react';
 import VideoPlayerModal from '@/components/shared/VideoPlayerModal';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AdminVideosPage() {
     return (
-        <ProtectedRoute adminOnly>
+        <ProtectedRoute>
             <VideoContent />
         </ProtectedRoute>
     );
 }
 
 function VideoContent() {
+    const { user } = useAuth();
+    const isStaff = user?.role === 'admin' || user?.role === 'moderator';
     const [activeTab, setActiveTab] = useState<'moderate' | 'upload'>('upload');
-    
+
     return (
         <div>
             <div style={{ marginBottom: '32px' }}>
@@ -26,21 +29,23 @@ function VideoContent() {
             </div>
 
             <div className={styles.tabs}>
-                <button 
+                <button
                     className={`${styles.tabBtn} ${activeTab === 'upload' ? styles.tabActive : ''}`}
                     onClick={() => setActiveTab('upload')}
                 >
                     Upload Reels
                 </button>
-                <button 
-                    className={`${styles.tabBtn} ${activeTab === 'moderate' ? styles.tabActive : ''}`}
-                    onClick={() => setActiveTab('moderate')}
-                >
-                    Moderation Queue
-                </button>
+                {isStaff && (
+                    <button
+                        className={`${styles.tabBtn} ${activeTab === 'moderate' ? styles.tabActive : ''}`}
+                        onClick={() => setActiveTab('moderate')}
+                    >
+                        Moderation Queue
+                    </button>
+                )}
             </div>
 
-            {activeTab === 'upload' ? <VideoUploadSection /> : <VideoModerationSection />}
+            {activeTab === 'upload' || !isStaff ? <VideoUploadSection /> : <VideoModerationSection />}
         </div>
     );
 }

@@ -62,7 +62,7 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 
 export default function AdminPayoutsPage() {
   return (
-    <ProtectedRoute adminOnly>
+    <ProtectedRoute>
       <PayoutsContent />
     </ProtectedRoute>
   );
