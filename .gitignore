@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — only ignore base .env, commit .env.local / .env.staging / .env.production
+# env files — .env.local is machine-local, never commit it
 .env
+.env.local
 
 # vercel
 .vercel
