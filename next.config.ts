@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 // API_URL is a server-side var used only for the rewrite proxy — no NEXT_PUBLIC_ needed.
 // Falls back to NEXT_PUBLIC_API_URL (for backwards compat) then localhost.
 // const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = 'https://stage-api.faithfightersforamerica.com';
 console.log('[Admin] NEXT_PUBLIC_API_URL in next.config.ts:', process.env.NEXT_PUBLIC_API_URL);
 
 

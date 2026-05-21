@@ -8,7 +8,7 @@ import { PLAN_CONFIG, PlanKey } from '@/lib/types';
 import styles from './page.module.css';
 
 // const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = 'https://stage-api.faithfightersforamerica.com';
 console.log('[Admin] NEXT_PUBLIC_API_URL in register/page.tsx:', process.env.NEXT_PUBLIC_API_URL);
 
 const floatingDonors = [
