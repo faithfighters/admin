@@ -42,6 +42,20 @@ export default function LoginPage() {
     }, [user, authLoading, router]);
 
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const err = params.get('error');
+            if (err === 'sso_invalid') {
+                setError('The Single Sign-On link is invalid or has already been used.');
+            } else if (err === 'sso_expired') {
+                setError('The Single Sign-On session has expired. Please try again from the website.');
+            } else if (err === 'sso_failed') {
+                setError('Single Sign-On authentication failed. Please log in manually.');
+            }
+        }
+    }, []);
+
+    useEffect(() => {
         const interval = setInterval(() => {
             if (mobileScrollRef.current) {
                 const el = mobileScrollRef.current;
