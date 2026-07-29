@@ -1,0 +1,808 @@
+/* ===== ADMIN LAYOUT — Dark Theme ===== */
+
+.adminContainer {
+    display: flex;
+    min-height: 100vh;
+    background: #0b0a12;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────── */
+.sidebar {
+    width: 260px;
+    background: #15131f;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 24px 16px;
+    position: relative;
+    z-index: 10;
+}
+
+.sidebarHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding: 0 8px;
+}
+
+.logoBadge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logoIcon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #E7421B, #F8C38F);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logoIcon svg {
+    width: 18px;
+    height: 18px;
+    color: white;
+}
+
+.logoText {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -1px;
+}
+
+.toggleArrows {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.toggleArrow {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.2s;
+}
+
+.toggleArrow:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Nav ───────────────────────────────────────────────────── */
+.sidebarNav {
+    flex: 1;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-radius: 12px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.navLink:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+.navLink:focus-visible {
+    outline: 2px solid #F8C38F;
+    outline-offset: 2px;
+}
+
+.navLinkActive {
+    background: linear-gradient(135deg, #E7421B, #F8C38F);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(231, 66, 27, 0.35);
+}
+
+.navLinkActive:hover {
+    background: linear-gradient(135deg, #C2410C, #F8C38F);
+    color: #ffffff;
+}
+
+.navIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    flex-shrink: 0;
+}
+
+.navLabel {
+    flex: 1;
+    white-space: nowrap;
+}
+
+/* ── Sidebar Footer ────────────────────────────────────────── */
+.sidebarFooter {
+    padding-top: 16px;
+    margin-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.logoutBtn {
+    width: 100%;
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+}
+
+.logoutBtn:hover {
+    color: #F8C38F !important;
+    background: rgba(231, 66, 27, 0.12) !important;
+}
+
+/* ── Main Content ──────────────────────────────────────────── */
+.mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+    background: #0b0a12;
+}
+
+/* ── Top Bar ───────────────────────────────────────────────── */
+.topbar {
+    height: 80px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    flex-shrink: 0;
+}
+
+.searchBar {
+    position: relative;
+    width: 400px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #F8C38F;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 12px 20px 12px 44px;
+    font-size: 14px;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    outline: none;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.searchInput::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+    opacity: 1;
+}
+
+.searchInput:focus {
+    border-color: #F8C38F;
+    box-shadow: 0 0 0 4px rgba(248, 195, 143, 0.12);
+}
+
+.searchShortcut {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+}
+
+.shortcutKey {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.topbarRight {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.notificationBtn {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s;
+    position: relative;
+}
+
+.notificationBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+.notificationBtn:focus-visible {
+    outline: 2px solid #F8C38F;
+    outline-offset: 2px;
+}
+
+.notificationBtn::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    background: #F8C38F;
+    border-radius: 50%;
+    border: 2px solid #15131f;
+}
+
+.userProfileWrapper {
+    position: relative;
+}
+
+.userMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #1a1825;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    min-width: 180px;
+    padding: 6px;
+    z-index: 200;
+}
+
+.userMenuItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.userMenuItem:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.userMenuItemDanger {
+    color: #F8C38F;
+}
+
+.userMenuItemDanger:hover {
+    background: rgba(231, 66, 27, 0.12);
+}
+
+.userMenuDivider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 4px 0;
+}
+
+.userProfile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 6px 12px 6px 6px;
+    border-radius: 14px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.userProfile:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.userAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2a2738 0%, #1a1825 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.userAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.userAvatar svg {
+    width: 20px;
+    height: 20px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.userName {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.userDropdown {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-left: -2px;
+}
+
+.pageTitle {
+    display: none;
+}
+
+/* ── Content Wrapper ───────────────────────────────────────── */
+.contentWrapper {
+    padding: 0 28px 28px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* ── Mobile Menu Toggle ────────────────────────────────────── */
+.menuToggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.mobileOverlay {
+    display: none;
+}
+
+/* ── Mobile Bottom Nav ─────────────────────────────────────── */
+.bottomNav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: #15131f;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+    z-index: 500;
+    align-items: stretch;
+    justify-content: space-around;
+}
+
+.bottomNavItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    padding: 8px 4px;
+    color: rgba(255, 255, 255, 0.35);
+    text-decoration: none;
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bottomNavItem.bottomNavActive {
+    color: #F8C38F;
+}
+
+.bottomNavLabel {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    line-height: 1;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 72px;
+        padding: 20px 10px;
+        align-items: center;
+    }
+
+    .sidebarHeader {
+        justify-content: center;
+    }
+
+    .logoText,
+    .toggleArrows,
+    .navLabel {
+        display: none;
+    }
+
+    .navLink {
+        justify-content: center;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .navIcon {
+        font-size: 18px;
+        width: auto;
+    }
+
+    .topbar {
+        padding: 0 20px;
+    }
+
+    .searchBar {
+        width: 240px;
+    }
+
+    .contentWrapper {
+        padding: 0 20px 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -240px;
+        top: 0;
+        bottom: 0;
+        width: 220px;
+        z-index: 1000;
+        transition: left 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: none;
+        padding: 24px 14px;
+    }
+
+    .sidebar.sidebarOpen {
+        left: 0;
+        box-shadow: 8px 0 30px rgba(0, 0, 0, 0.4);
+    }
+
+    /* On mobile the sidebar is off-canvas — hide the collapse toggle */
+    .collapseBtn {
+        display: none;
+    }
+
+    .logoText,
+    .navLabel {
+        display: block;
+    }
+
+    /* Keep toggleArrows hidden on mobile sidebar (collapse not applicable) */
+    .toggleArrows {
+        display: none;
+    }
+
+    .sidebarHeader {
+        justify-content: flex-start;
+    }
+
+    .navLink {
+        justify-content: flex-start;
+        padding: 10px 12px;
+    }
+
+    .navIcon {
+        font-size: 16px;
+        width: 20px;
+    }
+
+    .menuToggle {
+        display: flex;
+    }
+
+    .bottomNav {
+        display: flex;
+    }
+
+    .mobileOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+    }
+
+    .mobileOverlay.overlayVisible {
+        display: block;
+    }
+
+    .topbar {
+        padding: 0 16px;
+        height: 64px;
+        gap: 10px;
+    }
+
+    .searchBar {
+        flex: 1;
+        min-width: 0;
+        max-width: 200px;
+        width: auto;
+    }
+
+    .searchInput {
+        font-size: 15px; /* prevent iOS zoom on focus */
+    }
+
+    .searchShortcut {
+        display: none;
+    }
+
+    .breadcrumb {
+        padding: 0 16px 8px;
+    }
+
+    .contentWrapper {
+        padding: 0 16px;
+        padding-bottom: calc(60px + env(safe-area-inset-bottom, 16px));
+    }
+
+    /* Override inline-style grids in page content */
+    .contentWrapper [style*="grid-template-columns: repeat(4"],
+    .contentWrapper [style*="grid-template-columns: repeat(5"],
+    .contentWrapper [style*="grid-template-columns: repeat(6"] {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .contentWrapper [style*="grid-template-columns: repeat(3"] {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .contentWrapper [style*="grid-template-columns: 1fr 1fr"],
+    .contentWrapper [style*="grid-template-columns: 1fr 1fr 1fr"],
+    .contentWrapper [style*="grid-template-columns: 1fr 340px"],
+    .contentWrapper [style*="grid-template-columns: 340px 1fr"],
+    .contentWrapper [style*="grid-template-columns: 220px 1fr"],
+    .contentWrapper [style*="grid-template-columns: 1fr 220px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .contentWrapper [style*="min-width: 145px"],
+    .contentWrapper [style*="min-width: 100px"] {
+        min-width: 0 !important;
+    }
+
+    /* Topbar: hide theme toggle label if any, shrink gaps */
+    .topbarRight {
+        gap: 8px;
+    }
+
+    /* Prevent wide fixed-width elements from overflowing */
+    .contentWrapper [style*="maxWidth: '400px'"],
+    .contentWrapper [style*="max-width: 400px"] {
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .searchBar {
+        flex: 1;
+        max-width: none;
+        width: auto;
+    }
+
+    .topbarRight {
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .userName {
+        display: none;
+    }
+
+    .userDropdown {
+        display: none;
+    }
+
+    .contentWrapper {
+        padding: 0 12px;
+        padding-bottom: calc(60px + env(safe-area-inset-bottom, 16px));
+    }
+
+    /* Collapse all grids to 1-column at very small screens */
+    .contentWrapper [style*="grid-template-columns: repeat(4"],
+    .contentWrapper [style*="grid-template-columns: repeat(5"],
+    .contentWrapper [style*="grid-template-columns: repeat(6"],
+    .contentWrapper [style*="grid-template-columns: repeat(3"],
+    .contentWrapper [style*="grid-template-columns: 1fr 1fr"],
+    .contentWrapper [style*="grid-template-columns: 1fr 1fr 1fr"],
+    .contentWrapper [style*="grid-template-columns: 1fr 340px"],
+    .contentWrapper [style*="grid-template-columns: 220px 1fr"],
+    .contentWrapper [style*="grid-template-columns: 1fr 220px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Keep 2-col for repeat(2,...) — still readable at 480px */
+    .contentWrapper [style*="grid-template-columns: repeat(2, 1fr)"],
+    .contentWrapper [style*="grid-template-columns: repeat(2,1fr)"] {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    /* Prevent any fixed max-width from clipping */
+    .contentWrapper [style*="max-width: 400px"],
+    .contentWrapper [style*="max-width: 480px"],
+    .contentWrapper [style*="maxWidth: '400px'"],
+    .contentWrapper [style*="maxWidth: '480px'"] {
+        max-width: 100% !important;
+    }
+
+    /* Hide theme toggle on very small screens to give more topbar space */
+    .themeToggle {
+        display: none;
+    }
+}
+
+/* ── Sidebar Collapse ──────────────────────────────────────── */
+.sidebarCollapsed {
+    width: 72px;
+    padding: 24px 8px;
+}
+.sidebarCollapsed .navLabel,
+.sidebarCollapsed .navSectionLabel,
+.sidebarCollapsed .logoText,
+.sidebarCollapsed .toggleArrows {
+    display: none;
+}
+.sidebarCollapsed .navLink {
+    justify-content: center;
+    padding: 12px;
+}
+.sidebarCollapsed .navIcon {
+    width: 24px;
+}
+.sidebarCollapsed .logoBadge {
+    justify-content: center;
+}
+.sidebar {
+    transition: width 0.3s ease, padding 0.3s ease;
+}
+
+/* ── Nav Section Labels ────────────────────────────────────── */
+.navSectionLabel {
+    font-size: 10px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 16px 14px 6px;
+    opacity: 0.7;
+}
+.navSectionLabel:first-child {
+    padding-top: 0;
+}
+
+/* ── Breadcrumb ────────────────────────────────────────────── */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 40px 10px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+}
+.breadcrumbSep {
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 10px;
+}
+.breadcrumbCurrent {
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 700;
+}
+
+/* ── Dark Mode Toggle Button ───────────────────────────────── */
+.themeToggle {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s;
+}
+.themeToggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* ── Collapse Toggle Button ────────────────────────────────── */
+.collapseBtn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.collapseBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
