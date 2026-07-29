@@ -28,6 +28,7 @@ import {
     PanelLeftClose,
     PanelLeftOpen,
     HeartHandshake,
+    Mail,
 } from 'lucide-react';
 import NotificationBell from '@/components/shared/NotificationBell';
 
@@ -45,6 +46,8 @@ const SEGMENT_NAMES: Record<string, string> = {
     leaderboard: 'Leaderboard',
     profile: 'Profile',
     rfa: 'Assistance Requests',
+    volunteers: 'Volunteers',
+    messages: 'Contact Messages',
 };
 
 const BOTTOM_NAV = [
@@ -69,6 +72,8 @@ const NAV_SECTIONS = [
         items: [
             { label: 'Members', href: '/admin/members', icon: <Users size={20} />, adminOnly: false },
             { label: 'Assistance Requests', href: '/admin/rfa', icon: <HeartHandshake size={20} />, adminOnly: false },
+            { label: 'Volunteers', href: '/admin/volunteers', icon: <Users size={20} />, adminOnly: false },
+            { label: 'Contact Messages', href: '/admin/messages', icon: <Mail size={20} />, adminOnly: false },
             { label: 'Charity Payouts', href: '/admin/payouts', icon: <CreditCard size={20} />, adminOnly: false },
             { label: 'Events', href: '/admin/events', icon: <Calendar size={20} />, adminOnly: false },
             { label: 'Analytics', href: '/admin/analytics', icon: <Activity size={20} />, adminOnly: false },
