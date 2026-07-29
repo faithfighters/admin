@@ -45,7 +45,6 @@ const SEGMENT_NAMES: Record<string, string> = {
     leaderboard: 'Leaderboard',
     profile: 'Profile',
     rfa: 'Assistance Requests',
-    volunteers: 'Volunteer Applications',
 };
 
 const BOTTOM_NAV = [
@@ -70,7 +69,6 @@ const NAV_SECTIONS = [
         items: [
             { label: 'Members', href: '/admin/members', icon: <Users size={20} />, adminOnly: false },
             { label: 'Assistance Requests', href: '/admin/rfa', icon: <HeartHandshake size={20} />, adminOnly: false },
-            { label: 'Volunteer Applications', href: '/admin/volunteers', icon: <Users size={20} />, adminOnly: false },
             { label: 'Charity Payouts', href: '/admin/payouts', icon: <CreditCard size={20} />, adminOnly: false },
             { label: 'Events', href: '/admin/events', icon: <Calendar size={20} />, adminOnly: false },
             { label: 'Analytics', href: '/admin/analytics', icon: <Activity size={20} />, adminOnly: false },
