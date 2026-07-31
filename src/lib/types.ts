@@ -36,7 +36,7 @@ export interface Video {
     authorId: string;
     authorName: string;
     causeTag: string;
-    status: 'pending' | 'approved' | 'rejected';
+    status: 'pending' | 'approved' | 'rejected' | 'closed';
     createdAt: string;
     beneficiaryName?: string;
     urgencyReason?: string;
@@ -61,6 +61,9 @@ export interface Video {
     requiredVotes?: number;
     percentFunded?: number;
     isCompleted?: boolean;
+    closureReason?: string;
+    moderatedByName?: string;
+    moderatedAt?: string;
 }
 
 export interface VotingCycle {

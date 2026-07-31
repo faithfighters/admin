@@ -17,7 +17,7 @@ interface Video {
     authorId?: string;
     authorName: string;
     causeTag: string;
-    status: 'pending' | 'approved' | 'rejected';
+    status: 'pending' | 'approved' | 'rejected' | 'closed';
     createdAt: string;
     beneficiaryName?: string;
     urgencyReason?: string;
@@ -75,7 +75,7 @@ export default function VideoPlayerModal({
     const [videoLoading, setVideoLoading] = useState(true);
 
     // Moderation state
-    const [currentStatus, setCurrentStatus] = useState<'pending' | 'approved' | 'rejected'>(
+    const [currentStatus, setCurrentStatus] = useState<'pending' | 'approved' | 'rejected' | 'closed'>(
         videos[initialIndex]?.status ?? 'pending',
     );
     const [moderating, setModerating] = useState(false);

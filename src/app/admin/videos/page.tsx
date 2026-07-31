@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 import { Video } from '@/lib/types';
 import styles from '../page.module.css';
-import { Film, CheckCircle, XCircle, Clock, ShieldAlert, Plus, X, Star } from 'lucide-react';
+import { Film, CheckCircle, XCircle, Clock, ShieldAlert, Plus, X, Star, Ban } from 'lucide-react';
 import VideoPlayerModal from '@/components/shared/VideoPlayerModal';
 import { useToast } from '@/components/shared/Toast';
 
@@ -22,7 +22,7 @@ function VideoModerationSection() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-    const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'finished'>('all');
+    const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'closed' | 'finished'>('all');
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
     // Finished campaigns (100% funded, or cycle expired without reaching target)
@@ -35,6 +35,11 @@ function VideoModerationSection() {
     const [promptTargetIds, setPromptTargetIds] = useState<string[]>([]);
     const [promptStartDate, setPromptStartDate] = useState('');
     const [promptEndDate, setPromptEndDate] = useState('');
+
+    // Reason prompt state for closing an approved campaign early
+    const [closePromptOpen, setClosePromptOpen] = useState(false);
+    const [closeTargetId, setCloseTargetId] = useState<string | null>(null);
+    const [closeReason, setCloseReason] = useState('');
 
     // Blocked words state
     const [blockedWords, setBlockedWords] = useState<string[]>([]);
@@ -210,6 +215,33 @@ function VideoModerationSection() {
         }
     };
 
+    const handleConfirmClose = async () => {
+        if (!closeTargetId || !closeReason.trim()) return;
+        setActionLoading(closeTargetId + 'close');
+        try {
+            const res = await fetch(`/api/admin/videos/${closeTargetId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ status: 'closed', closureReason: closeReason.trim() }),
+            });
+            if (res.ok) {
+                setVideos(prev => prev.map(v => v.id === closeTargetId ? { ...v, status: 'closed', closureReason: closeReason.trim() } : v));
+                toast('Campaign closed.', 'success');
+                setClosePromptOpen(false);
+                setCloseTargetId(null);
+                setCloseReason('');
+            } else {
+                const errData = await res.json();
+                toast(errData.message || 'Failed to close campaign.', 'error');
+            }
+        } catch {
+            toast('An error occurred while closing the campaign.', 'error');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
     const toggleSelect = (id: string) => {
         setSelectedIds(prev => {
             const next = new Set(prev);
@@ -238,6 +270,7 @@ function VideoModerationSection() {
     const pendingCount = videos.filter(v => v.status === 'pending').length;
     const approvedCount = videos.filter(v => v.status === 'approved' && !isFinished(v)).length;
     const rejectedCount = videos.filter(v => v.status === 'rejected').length;
+    const closedCount = videos.filter(v => v.status === 'closed').length;
 
     return (
         <div>
@@ -257,6 +290,7 @@ function VideoModerationSection() {
                     { label: 'Pending Review', count: pendingCount, bg: 'rgba(245,158,11,0.15)', color: '#fbbf24', border: 'rgba(245,158,11,0.3)' },
                     { label: 'Approved', count: approvedCount, bg: 'rgba(34,197,94,0.15)', color: '#4ade80', border: 'rgba(34,197,94,0.3)' },
                     { label: 'Rejected', count: rejectedCount, bg: 'rgba(231,66,27,0.15)', color: '#F8C38F', border: 'rgba(231,66,27,0.3)' },
+                    { label: 'Closed', count: closedCount, bg: 'rgba(148,163,184,0.15)', color: '#cbd5e1', border: 'rgba(148,163,184,0.3)' },
                     { label: 'Total', count: videos.length, bg: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.85)', border: 'rgba(255,255,255,0.1)' },
                 ].map(s => (
                     <div key={s.label} style={{ padding: '12px 18px', background: s.bg, border: `1px solid ${s.border}`, borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -320,7 +354,7 @@ function VideoModerationSection() {
             {/* Filter tabs */}
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                 <div className={styles.tabs} style={{ marginBottom: 0 }}>
-                    {(['all', 'pending', 'approved', 'rejected', 'finished'] as const).map(f => (
+                    {(['all', 'pending', 'approved', 'rejected', 'closed', 'finished'] as const).map(f => (
                         <button
                             key={f}
                             className={`${styles.tabBtn} ${filter === f ? styles.tabActive : ''}`}
@@ -329,7 +363,7 @@ function VideoModerationSection() {
                             {f.charAt(0).toUpperCase() + f.slice(1)}
                             {f !== 'all' && f !== 'finished' && (
                                 <span style={{ marginLeft: '6px', fontSize: '12px', background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '1px 6px' }}>
-                                    {f === 'pending' ? pendingCount : f === 'approved' ? approvedCount : rejectedCount}
+                                    {f === 'pending' ? pendingCount : f === 'approved' ? approvedCount : f === 'rejected' ? rejectedCount : closedCount}
                                 </span>
                             )}
                         </button>
@@ -503,18 +537,33 @@ function VideoModerationSection() {
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
-                                            {video.status === 'approved' ? <CheckCircle size={13} color="#4ade80" /> : <XCircle size={13} color="#F8C38F" />}
-                                            {video.status === 'approved' ? 'Approved' : 'Rejected'}
+                                            {video.status === 'approved' ? <CheckCircle size={13} color="#4ade80" /> : video.status === 'closed' ? <Ban size={13} color="#cbd5e1" /> : <XCircle size={13} color="#F8C38F" />}
+                                            {video.status === 'approved' ? 'Approved' : video.status === 'closed' ? 'Closed' : 'Rejected'}
                                         </div>
+                                        {video.status === 'closed' && video.closureReason && (
+                                            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>
+                                                &ldquo;{video.closureReason}&rdquo;
+                                            </div>
+                                        )}
                                         {video.status === 'approved' && (
-                                            <button
-                                                onClick={() => handleFeature(video.id)}
-                                                disabled={actionLoading !== null || video.isFeatured}
-                                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '7px', borderRadius: '8px', border: video.isFeatured ? '1px solid rgba(245,158,11,0.4)' : '1px solid rgba(255,255,255,0.08)', background: video.isFeatured ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)', color: video.isFeatured ? '#fbbf24' : 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '12px', cursor: actionLoading || video.isFeatured ? 'not-allowed' : 'pointer', opacity: actionLoading && actionLoading !== video.id + 'feature' ? 0.5 : 1, fontFamily: 'inherit' }}
-                                            >
-                                                <Star size={12} fill={video.isFeatured ? '#fbbf24' : 'none'} />
-                                                {video.isFeatured ? 'Featured' : 'Set as Featured'}
-                                            </button>
+                                            <>
+                                                <button
+                                                    onClick={() => handleFeature(video.id)}
+                                                    disabled={actionLoading !== null || video.isFeatured}
+                                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '7px', borderRadius: '8px', border: video.isFeatured ? '1px solid rgba(245,158,11,0.4)' : '1px solid rgba(255,255,255,0.08)', background: video.isFeatured ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)', color: video.isFeatured ? '#fbbf24' : 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '12px', cursor: actionLoading || video.isFeatured ? 'not-allowed' : 'pointer', opacity: actionLoading && actionLoading !== video.id + 'feature' ? 0.5 : 1, fontFamily: 'inherit' }}
+                                                >
+                                                    <Star size={12} fill={video.isFeatured ? '#fbbf24' : 'none'} />
+                                                    {video.isFeatured ? 'Featured' : 'Set as Featured'}
+                                                </button>
+                                                <button
+                                                    onClick={() => { setCloseTargetId(video.id); setCloseReason(''); setClosePromptOpen(true); }}
+                                                    disabled={actionLoading !== null}
+                                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '7px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '12px', cursor: actionLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
+                                                >
+                                                    <Ban size={12} />
+                                                    Close Campaign
+                                                </button>
+                                            </>
                                         )}
                                     </div>
                                 )}
@@ -678,6 +727,116 @@ function VideoModerationSection() {
                                                     </div>
                                                 </div>
                                             )}
+
+                                            {closePromptOpen && (
+                                                <div style={{
+                                                    position: 'fixed', inset: 0, zIndex: 10000,
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                                                    backdropFilter: 'blur(8px)',
+                                                    animation: 'vpm_fade 0.2s ease-out',
+                                                    padding: '16px',
+                                                }}>
+                                                    <div style={{
+                                                        background: '#15131f',
+                                                        borderRadius: '24px',
+                                                        border: '1px solid rgba(255,255,255,0.08)',
+                                                        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+                                                        width: '100%',
+                                                        maxWidth: '440px',
+                                                        padding: '24px',
+                                                        position: 'relative',
+                                                        animation: 'vpm_up 0.3s cubic-bezier(0.16,1,0.3,1)',
+                                                    }} onClick={e => e.stopPropagation()}>
+
+                                                        <button
+                                                            onClick={() => { setClosePromptOpen(false); setCloseTargetId(null); setCloseReason(''); }}
+                                                            style={{
+                                                                position: 'absolute', top: '16px', right: '16px',
+                                                                background: 'rgba(255,255,255,0.06)', border: 'none', borderRadius: '50%',
+                                                                width: '32px', height: '32px', display: 'flex',
+                                                                alignItems: 'center', justifyContent: 'center',
+                                                                cursor: 'pointer', color: 'rgba(255,255,255,0.6)'
+                                                            }}
+                                                        >
+                                                            <X size={16} />
+                                                        </button>
+
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                                                            <div style={{
+                                                                width: '40px', height: '40px', borderRadius: '12px',
+                                                                backgroundColor: 'rgba(148,163,184,0.15)', display: 'flex',
+                                                                alignItems: 'center', justifyContent: 'center', color: '#cbd5e1'
+                                                            }}>
+                                                                <Ban size={20} />
+                                                            </div>
+                                                            <div>
+                                                                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                                                                    Close Campaign
+                                                                </h3>
+                                                                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', margin: 0 }}>
+                                                                    Pulls it off the platform before its cycle ends. This cannot be undone.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div style={{ marginBottom: '20px' }}>
+                                                            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: '6px' }}>
+                                                                Reason for closing
+                                                            </label>
+                                                            <textarea
+                                                                value={closeReason}
+                                                                onChange={e => setCloseReason(e.target.value)}
+                                                                placeholder="e.g. Underperforming — low engagement after 2 weeks"
+                                                                rows={3}
+                                                                style={{
+                                                                    width: '100%',
+                                                                    background: 'rgba(255,255,255,0.04)',
+                                                                    border: '1.5px solid rgba(255,255,255,0.08)',
+                                                                    borderRadius: '10px',
+                                                                    color: '#ffffff',
+                                                                    fontSize: '14px',
+                                                                    padding: '10px 12px',
+                                                                    outline: 'none',
+                                                                    fontFamily: 'inherit',
+                                                                    boxSizing: 'border-box',
+                                                                    resize: 'vertical',
+                                                                }}
+                                                            />
+                                                        </div>
+
+                                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                                            <button
+                                                                onClick={handleConfirmClose}
+                                                                disabled={!closeReason.trim() || actionLoading !== null}
+                                                                style={{
+                                                                    flex: 1, padding: '12px', borderRadius: '12px', border: 'none',
+                                                                    backgroundColor: (!closeReason.trim() || actionLoading !== null) ? 'rgba(255,255,255,0.1)' : '#dc2626',
+                                                                    color: 'white', fontSize: '14px', fontWeight: 700,
+                                                                    cursor: (!closeReason.trim() || actionLoading !== null) ? 'not-allowed' : 'pointer',
+                                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                                                                    fontFamily: 'inherit'
+                                                                }}
+                                                            >
+                                                                {actionLoading === closeTargetId + 'close' ? (
+                                                                    <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', animation: 'spin 0.75s linear infinite' }} />
+                                                                ) : <Ban size={15} />}
+                                                                Confirm Close
+                                                            </button>
+                                                            <button
+                                                                onClick={() => { setClosePromptOpen(false); setCloseTargetId(null); setCloseReason(''); }}
+                                                                style={{
+                                                                    padding: '12px 18px', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.08)',
+                                                                    backgroundColor: 'transparent', color: 'rgba(255,255,255,0.5)', fontSize: '14px', fontWeight: 600,
+                                                                    cursor: 'pointer', fontFamily: 'inherit'
+                                                                }}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
     );
 }
@@ -781,6 +940,7 @@ function StatusBadge({ status }: { status: string }) {
         pending:  { bg: 'rgba(245,158,11,0.15)',  color: '#fbbf24', icon: <Clock size={10} /> },
         approved: { bg: 'rgba(34,197,94,0.15)',  color: '#4ade80', icon: <CheckCircle size={10} /> },
         rejected: { bg: 'rgba(231,66,27,0.15)', color: '#F8C38F', icon: <XCircle size={10} /> },
+        closed:   { bg: 'rgba(148,163,184,0.15)', color: '#cbd5e1', icon: <Ban size={10} /> },
     };
     const { bg, color, icon } = map[status] ?? map.pending;
     return (
