@@ -716,9 +716,17 @@
 }
 .sidebarCollapsed .navLabel,
 .sidebarCollapsed .navSectionLabel,
-.sidebarCollapsed .logoText,
-.sidebarCollapsed .toggleArrows {
+.sidebarCollapsed .logoText {
     display: none;
+}
+/* Keep the collapse/expand button reachable — stack it under the logo
+   instead of hiding it, so there's always a way to expand again. */
+.sidebarCollapsed .sidebarHeader {
+    flex-direction: column;
+    gap: 12px;
+}
+.sidebarCollapsed .toggleArrows {
+    margin-left: 0;
 }
 .sidebarCollapsed .navLink {
     justify-content: center;
