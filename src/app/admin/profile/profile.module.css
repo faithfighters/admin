@@ -1,0 +1,342 @@
+/* ===== ADMIN PROFILE STYLES ===== */
+
+.profileWrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 0 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.profileHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+}
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 32px;
+}
+
+@media (max-width: 900px) {
+    .gridContainer {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Left Sidebar Card ─────────────────────────────────────── */
+.profileCard {
+    background: #15131f;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 32px 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cardHeaderBg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    background: linear-gradient(135deg, #E7421B 0%, #F8C38F 100%);
+    z-index: 1;
+}
+
+.avatarWrapper {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: #15131f;
+    padding: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    position: relative;
+    z-index: 2;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.avatarWrapper:hover .avatarOverlay {
+    opacity: 1;
+}
+
+.avatarOverlay {
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(2px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 5;
+}
+
+.avatarUploading {
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: rgba(21, 19, 31, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    z-index: 6;
+}
+
+.avatarImage {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E7421B 0%, #F8C38F 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.avatarImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.userName {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 4px;
+    z-index: 2;
+}
+
+.userEmail {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 16px;
+    z-index: 2;
+}
+
+.roleBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.85);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 30px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.adminBadge {
+    background: rgba(231,66,27,0.15);
+    color: #F8C38F;
+    border-color: rgba(231,66,27,0.3);
+}
+
+.metaInfo {
+    width: 100%;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+}
+
+.metaRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.metaLabel {
+    color: rgba(255,255,255,0.5);
+}
+
+.metaValue {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* ── Main Panel Cards ───────────────────────────────────────── */
+.panelWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.panelCard {
+    background: #15131f;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.cardTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 24px;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 600px) {
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formGroupFull {
+    grid-column: 1 / -1;
+}
+
+.label {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+}
+
+.input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #ffffff;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.input:focus {
+    border-color: #F8C38F;
+    box-shadow: 0 0 0 4px rgba(231, 66, 27, 0.12);
+}
+
+.inputDisabled {
+    background: rgba(255,255,255,0.02);
+    color: rgba(255,255,255,0.4);
+    cursor: not-allowed;
+}
+
+.inputDisabled:focus {
+    border-color: rgba(255,255,255,0.1);
+    box-shadow: none;
+}
+
+.btnRow {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+.submitBtn {
+    background: linear-gradient(135deg, #E7421B, #F8C38F);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.submitBtn:hover {
+    background: linear-gradient(135deg, #C2410C, #F8C38F);
+    transform: translateY(-1px);
+}
+
+.submitBtnDisabled {
+    background: rgba(255,255,255,0.1);
+    cursor: not-allowed;
+}
+
+.submitBtnDisabled:hover {
+    background: rgba(255,255,255,0.1);
+    transform: none;
+}
+
+.statusMessage {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.successMessage {
+    background: rgba(34,197,94,0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34,197,94,0.3);
+}
+
+.errorMessage {
+    background: rgba(231,66,27,0.15);
+    color: #F8C38F;
+    border: 1px solid rgba(231,66,27,0.3);
+}
