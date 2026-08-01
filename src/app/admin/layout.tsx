@@ -180,7 +180,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                     <div className={styles.logoBadge}>
                         {sidebarCollapsed ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src="/images/logo-fist-transparent.png" alt="Faith Fighters logo" style={{ height: '32px', width: '32px', objectFit: 'contain' }} />
+                            <img src="/images/favicon.png" alt="Faith Fighters logo" style={{ height: '32px', width: '32px', objectFit: 'contain' }} />
                         ) : (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src="/images/FFFA_logo_Horizontal.svg" alt="Faith Fighters logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
