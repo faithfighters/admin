@@ -17,8 +17,8 @@ export default function ProtectedRoute({ children, adminOnly = false }: Protecte
         if (!isLoading) {
             if (!user) {
                 router.push('/login');
-            } else if (adminOnly && !isAdmin) {
-                router.push('/dashboard');
+            } else if (!isAdmin) {
+                router.push('/login?error=unauthorized');
             }
         }
     }, [user, isLoading, isAdmin, adminOnly, router]);
@@ -34,7 +34,7 @@ export default function ProtectedRoute({ children, adminOnly = false }: Protecte
         );
     }
 
-    if (!user || (adminOnly && !isAdmin)) return null;
+    if (!user || !isAdmin) return null;
 
     return <>{children}</>;
 }

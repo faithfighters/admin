@@ -3,12 +3,15 @@ export interface User {
     name: string;
     email: string;
     role: 'member' | 'admin' | 'moderator';
-    plan?: 'basic' | 'standard' | 'premium';
+    userType?: 'donor' | 'recipient';
+    image?: string;
+    plan?: 'faith_fighter' | 'faith_hero' | 'faith_builder';
     votesRemaining?: number;
     votesTotal?: number;
     joinedAt: string;
     stripeCustomerId?: string;
     stripeSubscriptionId?: string;
+    hasSubmittedRequest?: boolean;
 }
 
 export interface Cause {
@@ -33,8 +36,8 @@ export interface Video {
     authorId: string;
     authorName: string;
     causeTag: string;
-    status: 'pending' | 'approved' | 'rejected';
-    submittedAt: string;
+    status: 'pending' | 'approved' | 'rejected' | 'closed';
+    createdAt: string;
     beneficiaryName?: string;
     urgencyReason?: string;
     targetAmount?: number;
@@ -48,6 +51,19 @@ export interface Video {
         phone?: string;
         accountNumber?: string;
     };
+    isFeatured?: boolean;
+    isReported?: boolean;
+    reportCount?: number;
+    reportReasons?: string[];
+    votingCycleStartDate?: string;
+    votingCycleEndDate?: string;
+    voteCount?: number;
+    requiredVotes?: number;
+    percentFunded?: number;
+    isCompleted?: boolean;
+    closureReason?: string;
+    moderatedByName?: string;
+    moderatedAt?: string;
 }
 
 export interface VotingCycle {
@@ -91,48 +107,12 @@ export interface Payout {
     processedAt?: string;
 }
 
+const _PLAN = { name: 'Faith Fighter', price: 30, votes: 30 } as const;
+
 export const PLAN_CONFIG = {
-    basic: {
-        name: 'Basic',
-        price: 39.95,
-        votes: 2,
-        features: [
-            'Full platform access',
-            '2 donation votes per cycle',
-            'Live-streamed acts of kindness',
-            'Impact reports access',
-            'Profile badge',
-            '5% merchandise discount',
-            'Community updates & exclusive newsletters',
-        ],
-    },
-    standard: {
-        name: 'Standard',
-        price: 59.95,
-        votes: 4,
-        features: [
-            'All Basic benefits',
-            '4 donation votes per cycle',
-            'Priority town hall access',
-            'Behind-the-scenes content previews',
-            '10% merchandise discount',
-            'Annual digital recognition certificate',
-        ],
-    },
-    premium: {
-        name: 'Premium',
-        price: 79.95,
-        votes: 6,
-        features: [
-            'All Standard benefits',
-            '6 donation votes per cycle',
-            'Propose local initiatives',
-            'Quarterly Freedom Roundtable livestreams',
-            '15% merchandise discount',
-            'Exclusive annual merchandise item',
-            'Personalized thank-you video from leadership',
-        ],
-    },
+    faith_fighter: _PLAN,
+    faith_builder: _PLAN,
+    faith_hero:    _PLAN,
 } as const;
 
 export type PlanKey = keyof typeof PLAN_CONFIG;
