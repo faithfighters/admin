@@ -159,10 +159,6 @@ export default function LoginPage() {
                     Continue with Google
                 </button>
 
-                <p className={styles.footer}>
-                    Need an admin account?{' '}
-                    <Link href="/register" className={styles.footerLink}>Register</Link>
-                </p>
             </div>
 
             </div>{/* end pageInner */}
