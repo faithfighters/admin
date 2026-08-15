@@ -261,6 +261,11 @@ function VideoModerationSection() {
         return isCompleted || cycleEnded;
     };
 
+    // Card badges must agree with the counters/tabs above — an approved video
+    // whose voting window has closed should read "Finished" everywhere, not
+    // stay badged "Approved" while the stat card already excludes it.
+    const getDisplayStatus = (v: Video) => (v.status === 'approved' && isFinished(v) ? 'finished' : v.status);
+
     const filtered = filter === 'all'
         ? videos
         : filter === 'approved'
@@ -474,7 +479,7 @@ function VideoModerationSection() {
 
                                 {/* Status badge — right side; left is for checkbox */}
                                 <div style={{ position: 'absolute', top: video.status === 'pending' ? '38px' : '10px', left: '10px' }}>
-                                    <StatusBadge status={video.status} />
+                                    <StatusBadge status={getDisplayStatus(video)} />
                                 </div>
 
                                 {/* Featured badge */}
@@ -537,8 +542,8 @@ function VideoModerationSection() {
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
-                                            {video.status === 'approved' ? <CheckCircle size={13} color="#4ade80" /> : video.status === 'closed' ? <Ban size={13} color="#cbd5e1" /> : <XCircle size={13} color="#F8C38F" />}
-                                            {video.status === 'approved' ? 'Approved' : video.status === 'closed' ? 'Closed' : 'Rejected'}
+                                            {getDisplayStatus(video) === 'approved' ? <CheckCircle size={13} color="#4ade80" /> : getDisplayStatus(video) === 'finished' ? <CheckCircle size={13} color="#60a5fa" /> : video.status === 'closed' ? <Ban size={13} color="#cbd5e1" /> : <XCircle size={13} color="#F8C38F" />}
+                                            {getDisplayStatus(video) === 'approved' ? 'Approved' : getDisplayStatus(video) === 'finished' ? 'Finished' : video.status === 'closed' ? 'Closed' : 'Rejected'}
                                         </div>
                                         {video.status === 'closed' && video.closureReason && (
                                             <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>
@@ -941,6 +946,7 @@ function StatusBadge({ status }: { status: string }) {
         approved: { bg: 'rgba(34,197,94,0.15)',  color: '#4ade80', icon: <CheckCircle size={10} /> },
         rejected: { bg: 'rgba(231,66,27,0.15)', color: '#F8C38F', icon: <XCircle size={10} /> },
         closed:   { bg: 'rgba(148,163,184,0.15)', color: '#cbd5e1', icon: <Ban size={10} /> },
+        finished: { bg: 'rgba(96,165,250,0.15)', color: '#60a5fa', icon: <CheckCircle size={10} /> },
     };
     const { bg, color, icon } = map[status] ?? map.pending;
     return (
