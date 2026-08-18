@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from 'lucide-react';
 import ImageUploader from '@/components/shared/ImageUploader';
+import VideoUploader from '@/components/shared/VideoUploader';
 import { SiteContentRepeaterFieldDef } from '@/lib/types';
 import styles from '@/app/admin/page.module.css';
 
@@ -59,6 +60,12 @@ export default function RepeaterField({
                             <label className={styles.formLabel}>{itemField.label}</label>
                             {itemField.type === 'image' ? (
                                 <ImageUploader
+                                    value={item[itemField.key] || ''}
+                                    onChange={url => updateItem(i, itemField.key, url)}
+                                    label=""
+                                />
+                            ) : itemField.type === 'video' ? (
+                                <VideoUploader
                                     value={item[itemField.key] || ''}
                                     onChange={url => updateItem(i, itemField.key, url)}
                                     label=""

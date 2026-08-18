@@ -1,6 +1,7 @@
 'use client';
 
 import ImageUploader from '@/components/shared/ImageUploader';
+import VideoUploader from '@/components/shared/VideoUploader';
 import RepeaterField from '@/components/admin/RepeaterField';
 import { SiteContentPageManifest } from '@/lib/types';
 import styles from '@/app/admin/page.module.css';
@@ -32,7 +33,7 @@ export default function PageContentForm({
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                         {fields.map(field => (
                             <div key={field.key} className={styles.formGroup} style={{ marginBottom: 0 }}>
-                                {field.type !== 'repeater' && field.type !== 'image' && <label className={styles.formLabel}>{field.label}</label>}
+                                {field.type !== 'repeater' && field.type !== 'image' && field.type !== 'video' && <label className={styles.formLabel}>{field.label}</label>}
                                 {field.helpText && (
                                     <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 8px' }}>{field.helpText}</p>
                                 )}
@@ -57,6 +58,14 @@ export default function PageContentForm({
 
                                 {field.type === 'image' && (
                                     <ImageUploader
+                                        value={values[field.key] ?? field.defaultValue}
+                                        onChange={url => onChange(field.key, url)}
+                                        label={field.label}
+                                    />
+                                )}
+
+                                {field.type === 'video' && (
+                                    <VideoUploader
                                         value={values[field.key] ?? field.defaultValue}
                                         onChange={url => onChange(field.key, url)}
                                         label={field.label}
