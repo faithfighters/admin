@@ -107,6 +107,46 @@ export interface Payout {
     processedAt?: string;
 }
 
+// ── Page Content (CMS) ──
+// Mirrors FFFA-Backend-stage/src/site-content/manifests/types.ts — the two
+// repos share no package, so this is kept in sync by hand when field types
+// change (rare; the shape itself, not per-page manifests, is what's shared).
+export type SiteContentFieldType = 'text' | 'textarea' | 'image' | 'repeater';
+
+export interface SiteContentBaseFieldDef {
+    key: string;
+    label: string;
+    type: SiteContentFieldType;
+    section?: string;
+    helpText?: string;
+}
+
+export interface SiteContentTextFieldDef extends SiteContentBaseFieldDef {
+    type: 'text' | 'textarea';
+    defaultValue: string;
+    maxLength?: number;
+}
+
+export interface SiteContentImageFieldDef extends SiteContentBaseFieldDef {
+    type: 'image';
+    defaultValue: string;
+}
+
+export interface SiteContentRepeaterFieldDef extends SiteContentBaseFieldDef {
+    type: 'repeater';
+    itemLabel: string;
+    itemFields: (SiteContentTextFieldDef | SiteContentImageFieldDef)[];
+    defaultValue: Record<string, any>[];
+}
+
+export type SiteContentFieldDef = SiteContentTextFieldDef | SiteContentImageFieldDef | SiteContentRepeaterFieldDef;
+
+export interface SiteContentPageManifest {
+    page: string;
+    label: string;
+    fields: SiteContentFieldDef[];
+}
+
 const _PLAN = { name: 'Faith Fighter', price: 30, votes: 30 } as const;
 
 export const PLAN_CONFIG = {
