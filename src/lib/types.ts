@@ -111,7 +111,7 @@ export interface Payout {
 // Mirrors FFFA-Backend-stage/src/site-content/manifests/types.ts — the two
 // repos share no package, so this is kept in sync by hand when field types
 // change (rare; the shape itself, not per-page manifests, is what's shared).
-export type SiteContentFieldType = 'text' | 'textarea' | 'image' | 'repeater';
+export type SiteContentFieldType = 'text' | 'textarea' | 'image' | 'video' | 'repeater';
 
 export interface SiteContentBaseFieldDef {
     key: string;
@@ -132,14 +132,19 @@ export interface SiteContentImageFieldDef extends SiteContentBaseFieldDef {
     defaultValue: string;
 }
 
+export interface SiteContentVideoFieldDef extends SiteContentBaseFieldDef {
+    type: 'video';
+    defaultValue: string;
+}
+
 export interface SiteContentRepeaterFieldDef extends SiteContentBaseFieldDef {
     type: 'repeater';
     itemLabel: string;
-    itemFields: (SiteContentTextFieldDef | SiteContentImageFieldDef)[];
+    itemFields: (SiteContentTextFieldDef | SiteContentImageFieldDef | SiteContentVideoFieldDef)[];
     defaultValue: Record<string, any>[];
 }
 
-export type SiteContentFieldDef = SiteContentTextFieldDef | SiteContentImageFieldDef | SiteContentRepeaterFieldDef;
+export type SiteContentFieldDef = SiteContentTextFieldDef | SiteContentImageFieldDef | SiteContentVideoFieldDef | SiteContentRepeaterFieldDef;
 
 export interface SiteContentPageManifest {
     page: string;
