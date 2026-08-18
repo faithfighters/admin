@@ -29,6 +29,7 @@ import {
     PanelLeftOpen,
     HeartHandshake,
     Mail,
+    FileEdit,
 } from 'lucide-react';
 import NotificationBell from '@/components/shared/NotificationBell';
 
@@ -48,6 +49,7 @@ const SEGMENT_NAMES: Record<string, string> = {
     rfa: 'Assistance Requests',
     volunteers: 'Volunteers',
     messages: 'Contact Messages',
+    'page-content': 'Page Content',
 };
 
 const BOTTOM_NAV = [
@@ -65,6 +67,7 @@ const NAV_SECTIONS = [
             { label: 'All Campaigns', href: '/admin/charities', icon: <Grid size={20} />, adminOnly: false },
             { label: 'Video Submission', href: '/admin/videos', icon: <Video size={20} />, adminOnly: false },
             { label: 'Leaderboard', href: '/admin/leaderboard', icon: <Trophy size={20} />, adminOnly: false },
+            { label: 'Page Content', href: '/admin/page-content', icon: <FileEdit size={20} />, adminOnly: false },
         ],
     },
     {
