@@ -216,18 +216,32 @@ function MembersContent() {
                     <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', margin: '0 0 4px', letterSpacing: '-0.5px' }}>Members Directory</h1>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>Manage platform members and view subscription status.</p>
                 </div>
-                <button
-                    onClick={exportCSV}
-                    style={{
-                        display: 'flex', alignItems: 'center', gap: '6px',
-                        padding: '9px 18px', borderRadius: '10px',
-                        background: 'linear-gradient(135deg, #E7421B, #F8C38F)', color: 'white',
-                        border: 'none', fontSize: '13px', fontWeight: 600,
-                        cursor: 'pointer',
-                    }}
-                >
-                    <Download size={14} /> Export CSV
-                </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                        onClick={() => router.push('/admin/members/import')}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '6px',
+                            padding: '9px 18px', borderRadius: '10px',
+                            background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.8)',
+                            border: '1px solid rgba(255,255,255,0.1)', fontSize: '13px', fontWeight: 600,
+                            cursor: 'pointer',
+                        }}
+                    >
+                        <UserCheck size={14} /> Import Existing Members
+                    </button>
+                    <button
+                        onClick={exportCSV}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '6px',
+                            padding: '9px 18px', borderRadius: '10px',
+                            background: 'linear-gradient(135deg, #E7421B, #F8C38F)', color: 'white',
+                            border: 'none', fontSize: '13px', fontWeight: 600,
+                            cursor: 'pointer',
+                        }}
+                    >
+                        <Download size={14} /> Export CSV
+                    </button>
+                </div>
             </div>
 
             {/* Stats Banner */}
