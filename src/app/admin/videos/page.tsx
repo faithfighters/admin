@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 import { Video } from '@/lib/types';
 import styles from '../page.module.css';
-import { Film, CheckCircle, XCircle, Clock, ShieldAlert, Plus, X, Star, Ban } from 'lucide-react';
+import { Film, CheckCircle, XCircle, Clock, ShieldAlert, Plus, X, Star, Ban, Trash2 } from 'lucide-react';
 import VideoPlayerModal from '@/components/shared/VideoPlayerModal';
 import { useToast } from '@/components/shared/Toast';
 
@@ -122,6 +122,26 @@ function VideoModerationSection() {
             });
             if (res.ok) {
                 setVideos(prev => prev.map(v => v.id === id ? { ...v, status: action } : v));
+            }
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('Permanently delete this video? This removes it from the platform and storage — it cannot be undone.')) return;
+        setActionLoading(id + 'delete');
+        try {
+            const res = await fetch(`/api/admin/videos/${id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            if (res.ok) {
+                setVideos(prev => prev.filter(v => v.id !== id));
+                toast('Video deleted.', 'success');
+            } else {
+                const data = await res.json().catch(() => ({}));
+                toast(data.message || 'Failed to delete video.', 'error');
             }
         } finally {
             setActionLoading(null);
@@ -549,6 +569,16 @@ function VideoModerationSection() {
                                             <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>
                                                 &ldquo;{video.closureReason}&rdquo;
                                             </div>
+                                        )}
+                                        {(video.status === 'closed' || video.status === 'rejected') && (
+                                            <button
+                                                onClick={() => handleDelete(video.id)}
+                                                disabled={actionLoading !== null}
+                                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '7px', borderRadius: '8px', border: '1px solid rgba(220,38,38,0.3)', background: 'rgba(220,38,38,0.12)', color: '#fca5a5', fontWeight: 700, fontSize: '12px', cursor: actionLoading ? 'not-allowed' : 'pointer', opacity: actionLoading && actionLoading !== video.id + 'delete' ? 0.5 : 1, fontFamily: 'inherit' }}
+                                            >
+                                                <Trash2 size={12} />
+                                                {actionLoading === video.id + 'delete' ? 'Deleting…' : 'Delete Permanently'}
+                                            </button>
                                         )}
                                         {video.status === 'approved' && (
                                             <>
