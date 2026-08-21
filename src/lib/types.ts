@@ -3,6 +3,7 @@ export interface User {
     name: string;
     email: string;
     role: 'member' | 'admin' | 'moderator';
+    isActive?: boolean;
     userType?: 'donor' | 'recipient';
     image?: string;
     plan?: 'faith_fighter' | 'faith_hero' | 'faith_builder';
