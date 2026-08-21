@@ -7,7 +7,7 @@ import { User, PLAN_CONFIG, PlanKey } from '@/lib/types';
 import styles from '../page.module.css';
 import { useToast } from '@/components/shared/Toast';
 import { haptic } from '@/lib/haptics';
-import { Shield, UserX, Users, Download, Search, UserCheck, Crown, CheckSquare, Square, Minus } from 'lucide-react';
+import { Shield, UserX, Users, Download, Search, UserCheck, Crown, CheckSquare, Square, Minus, Trash2, X, Mail, Calendar, Vote, Award } from 'lucide-react';
 
 type RoleFilter = 'all' | 'member' | 'moderator' | 'admin';
 type PlanFilter = 'all' | 'faith_fighter' | 'none';
@@ -42,6 +42,7 @@ function MembersContent() {
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [bulkLoading, setBulkLoading] = useState(false);
+    const [profileMember, setProfileMember] = useState<User | null>(null);
 
     useEffect(() => {
         fetch('/api/admin/members', { credentials: 'include' })
@@ -71,6 +72,28 @@ function MembersContent() {
             }
         } catch {
             toast('Action failed. Please try again.', 'error');
+        } finally {
+            setActionLoading(null);
+        }
+    }, [toast]);
+
+    const deleteMember = useCallback(async (id: string, name: string) => {
+        setActionLoading(id);
+        try {
+            const res = await fetch(`/api/admin/members/${id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            if (res.ok) {
+                setMembers(prev => prev.filter(m => m.id !== id));
+                haptic('success');
+                toast(`${name} removed — their email can be used to register again`, 'success');
+            } else {
+                const data = await res.json().catch(() => ({}));
+                toast(data.message || 'Failed to remove member.', 'error');
+            }
+        } catch {
+            toast('Failed to remove member.', 'error');
         } finally {
             setActionLoading(null);
         }
@@ -519,7 +542,7 @@ function MembersContent() {
                                                 <button
                                                     className={styles.actionBtn}
                                                     disabled={actionLoading === member.id}
-                                                    onClick={() => router.push('/admin/profile')}
+                                                    onClick={() => setProfileMember(member)}
                                                     style={{ background: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', margin: 0 }}
                                                     title="View profile"
                                                 >
@@ -547,6 +570,19 @@ function MembersContent() {
                                                 >
                                                     <UserX size={12} /> Deactivate
                                                 </button>
+                                                <button
+                                                    className={styles.actionBtn}
+                                                    disabled={actionLoading === member.id}
+                                                    onClick={() => {
+                                                        if (confirm(`Permanently remove ${member.name} (${member.email})? This cannot be undone, and their email will become available for a new registration.`)) {
+                                                            deleteMember(member.id, member.name);
+                                                        }
+                                                    }}
+                                                    style={{ background: 'rgba(220,38,38,0.15)', borderColor: 'rgba(220,38,38,0.3)', color: '#fca5a5', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', margin: 0 }}
+                                                    title="Permanently remove member"
+                                                >
+                                                    <Trash2 size={12} /> Remove
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -556,6 +592,68 @@ function MembersContent() {
                     </table>
                 </div>
             </div>
+
+            {profileMember && (
+                <div
+                    onClick={() => setProfileMember(null)}
+                    style={{
+                        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        zIndex: 1000, padding: '20px',
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background: '#15131f', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)',
+                            maxWidth: '420px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                        }}
+                    >
+                        <div style={{
+                            background: 'linear-gradient(135deg, #E7421B, #F8C38F)', borderRadius: '20px 20px 0 0',
+                            padding: '24px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                <div style={{
+                                    width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: '20px', fontWeight: 800, color: 'white',
+                                }}>
+                                    {profileMember.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '18px', fontWeight: 800, color: 'white' }}>{profileMember.name}</div>
+                                    <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)' }}>{profileMember.email}</div>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setProfileMember(null)}
+                                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '6px', cursor: 'pointer', color: 'white', display: 'flex' }}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            {[
+                                { icon: <Shield size={14} color="#a78bfa" />, label: 'Role', value: profileMember.role.charAt(0).toUpperCase() + profileMember.role.slice(1) },
+                                { icon: <Crown size={14} color="#4ade80" />, label: 'Plan', value: profileMember.plan ? PLAN_CONFIG[profileMember.plan as PlanKey].name : 'No Plan' },
+                                { icon: <UserCheck size={14} color="#60a5fa" />, label: 'Type', value: profileMember.userType ? profileMember.userType.charAt(0).toUpperCase() + profileMember.userType.slice(1) : '—' },
+                                { icon: <Vote size={14} color="#60a5fa" />, label: 'Votes', value: `${profileMember.votesRemaining ?? 0} / ${profileMember.votesTotal ?? 0}` },
+                                { icon: <Calendar size={14} color="rgba(255,255,255,0.6)" />, label: 'Joined', value: formatDate(profileMember.joinedAt) },
+                                { icon: <Award size={14} color="#fbbf24" />, label: 'Assistance Request', value: profileMember.hasSubmittedRequest ? 'Submitted' : 'None' },
+                                { icon: <Mail size={14} color="rgba(255,255,255,0.6)" />, label: 'Stripe Customer ID', value: profileMember.stripeCustomerId || '—' },
+                            ].map(({ icon, label, value }) => (
+                                <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
+                                        {icon} {label}
+                                    </div>
+                                    <div style={{ color: 'white', fontSize: '13px', fontWeight: 600, textAlign: 'right', wordBreak: 'break-all' }}>{value}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
