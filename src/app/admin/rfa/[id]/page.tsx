@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Video as VideoIcon, Image as ImageIcon } from 'lucide-react';
+import { FileText, Video as VideoIcon, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 import { useToast } from '@/components/shared/Toast';
 import RfaStepper from '@/components/admin/RfaStepper';
+import ReceiptUploader from '@/components/shared/ReceiptUploader';
 import styles from '../../page.module.css';
 
 interface StatusHistoryEntry {
@@ -44,6 +45,7 @@ interface AssistanceRequest {
   fundsUsage?: string;
   paymentRecipientType?: string;
   paymentRecipientName?: string;
+  receiptUrl?: string;
   paymentCompleted?: boolean;
   testimonial?: Testimonial;
   testimonialRequestedAt?: string;
@@ -81,7 +83,7 @@ function RfaDetailContent() {
     paymentReferenceNumber: '', internalNotes: '', paymentCompleted: false,
   });
   const [paymentDetails, setPaymentDetails] = useState({
-    fundsUsage: '', paymentRecipientType: 'vendor', paymentRecipientName: '',
+    fundsUsage: '', paymentRecipientType: 'vendor', paymentRecipientName: '', receiptUrl: '',
   });
 
   const load = useCallback(() => {
@@ -104,6 +106,7 @@ function RfaDetailContent() {
           fundsUsage: r.fundsUsage || '',
           paymentRecipientType: r.paymentRecipientType || 'vendor',
           paymentRecipientName: r.paymentRecipientName || '',
+          receiptUrl: r.receiptUrl || '',
         });
       })
       .catch(() => toast('Failed to load request.', 'error'))
@@ -127,26 +130,58 @@ function RfaDetailContent() {
     else toast('Failed to update status.', 'error');
   };
 
-  const saveFinancials = async () => {
-    setSaving('financials');
+  // "Financial Tracking" = pre-payment prep (what we're approved to pay).
+  const saveApproval = async () => {
+    setSaving('approval');
     const res = await fetch(`/api/admin/assistance-requests/${id}/financials`, {
       method: 'PATCH', credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         amountApproved: financials.amountApproved ? Number(financials.amountApproved) : undefined,
+        internalNotes: financials.internalNotes || undefined,
+      }),
+    });
+    setSaving(null);
+    if (res.ok) { toast('Saved.', 'success'); load(); }
+    else {
+      const data = await res.json().catch(() => ({}));
+      toast(data.message || 'Failed to save.', 'error');
+    }
+  };
+
+  // "Payment Details" = executing the payment (what we actually paid, to whom,
+  // and proof) — a single save covers both the /financials and /payment-details
+  // fields shown together in that card, so there's one decisive action.
+  const savePaymentExecution = async () => {
+    setSaving('payment-execution');
+    const financialsRes = await fetch(`/api/admin/assistance-requests/${id}/financials`, {
+      method: 'PATCH', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         amountPaid: financials.amountPaid ? Number(financials.amountPaid) : undefined,
         paymentDate: financials.paymentDate || undefined,
         paymentMethod: financials.paymentMethod || undefined,
         paymentReferenceNumber: financials.paymentReferenceNumber || undefined,
-        internalNotes: financials.internalNotes || undefined,
         paymentCompleted: financials.paymentCompleted,
       }),
     });
+    if (!financialsRes.ok) {
+      setSaving(null);
+      const data = await financialsRes.json().catch(() => ({}));
+      toast(data.message || 'Failed to save payment details.', 'error');
+      return;
+    }
+
+    const detailsRes = await fetch(`/api/admin/assistance-requests/${id}/payment-details`, {
+      method: 'PATCH', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(paymentDetails),
+    });
     setSaving(null);
-    if (res.ok) { toast('Financials saved.', 'success'); load(); }
+    if (detailsRes.ok) { toast('Payment details saved.', 'success'); load(); }
     else {
-      const data = await res.json().catch(() => ({}));
-      toast(data.message || 'Failed to save financials.', 'error');
+      const data = await detailsRes.json().catch(() => ({}));
+      toast(data.message || 'Failed to save payment details.', 'error');
     }
   };
 
@@ -179,18 +214,6 @@ function RfaDetailContent() {
     setSaving(null);
     if (res.ok) { toast('Testimonial approved — case closed.', 'success'); load(); }
     else toast('Failed to approve testimonial.', 'error');
-  };
-
-  const savePaymentDetails = async () => {
-    setSaving('payment-details');
-    const res = await fetch(`/api/admin/assistance-requests/${id}/payment-details`, {
-      method: 'PATCH', credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(paymentDetails),
-    });
-    setSaving(null);
-    if (res.ok) { toast('Payment details saved.', 'success'); load(); }
-    else toast('Failed to save payment details.', 'error');
   };
 
   if (loading) return <p style={{ color: 'rgba(255,255,255,0.85)' }}>Loading...</p>;
@@ -329,50 +352,40 @@ function RfaDetailContent() {
           )}
         </div>
 
-        {/* Financial tracking */}
+        {/* Financial tracking — preparing to pay: amount approved + confirmation testimonial is in */}
         <div style={{ background: '#15131f', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', margin: '0 0 16px' }}>Financial Tracking</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '14px', marginBottom: '16px' }}>
             <FormRow label="Amount Approved ($)">
               <input style={inputStyle} type="number" min="0" step="0.01" value={financials.amountApproved} onChange={e => setFinancials(p => ({ ...p, amountApproved: e.target.value }))} />
             </FormRow>
-            <FormRow label="Amount Paid ($)">
-              <input style={inputStyle} type="number" min="0" step="0.01" value={financials.amountPaid} onChange={e => setFinancials(p => ({ ...p, amountPaid: e.target.value }))} />
-            </FormRow>
-            <FormRow label="Payment Date">
-              <input style={inputStyle} type="date" value={financials.paymentDate ? financials.paymentDate.slice(0, 10) : ''} onChange={e => setFinancials(p => ({ ...p, paymentDate: e.target.value }))} />
-            </FormRow>
-            <FormRow label="Payment Method">
-              <select style={inputStyle} value={financials.paymentMethod} onChange={e => setFinancials(p => ({ ...p, paymentMethod: e.target.value }))}>
-                <option value="check">Check</option>
-                <option value="ach">ACH Transfer</option>
-                <option value="paypal">PayPal</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="other">Other</option>
-              </select>
-            </FormRow>
-            <FormRow label="Payment Reference Number">
-              <input style={inputStyle} value={financials.paymentReferenceNumber} onChange={e => setFinancials(p => ({ ...p, paymentReferenceNumber: e.target.value }))} />
-            </FormRow>
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, marginBottom: '16px',
+            color: ['testimonial_received', 'payment_completed', 'case_closed'].includes(request.status) ? '#4ade80' : 'rgba(255,255,255,0.4)',
+          }}>
+            <CheckCircle2 size={16} />
+            {['testimonial_received', 'payment_completed', 'case_closed'].includes(request.status)
+              ? 'Testimonial received — cleared to pay'
+              : 'Waiting on testimonial before payment can be marked completed'}
           </div>
           <FormRow label="Internal Notes (admin-only)">
             <textarea style={{ ...inputStyle, resize: 'vertical' } as React.CSSProperties} rows={3} value={financials.internalNotes} onChange={e => setFinancials(p => ({ ...p, internalNotes: e.target.value }))} />
           </FormRow>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', cursor: 'pointer' }}>
-            <input type="checkbox" checked={financials.paymentCompleted} onChange={e => setFinancials(p => ({ ...p, paymentCompleted: e.target.checked }))} />
-            Payment completed
-          </label>
           <div style={{ marginTop: '16px' }}>
-            <button onClick={saveFinancials} disabled={saving === 'financials'} style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #E7421B, #F8C38F)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving === 'financials' ? 'not-allowed' : 'pointer', opacity: saving === 'financials' ? 0.6 : 1, fontFamily: 'inherit' }}>
-              {saving === 'financials' ? 'Saving…' : 'Save Financials'}
+            <button onClick={saveApproval} disabled={saving === 'approval'} style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #E7421B, #F8C38F)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving === 'approval' ? 'not-allowed' : 'pointer', opacity: saving === 'approval' ? 0.6 : 1, fontFamily: 'inherit' }}>
+              {saving === 'approval' ? 'Saving…' : 'Save'}
             </button>
           </div>
         </div>
 
-        {/* Payment details */}
+        {/* Payment details — executing the payment: amount paid, vendor, receipt, method, date */}
         <div style={{ background: '#15131f', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', margin: '0 0 16px' }}>Payment Details</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '14px', marginBottom: '16px' }}>
+            <FormRow label="Amount Paid ($)">
+              <input style={inputStyle} type="number" min="0" step="0.01" value={financials.amountPaid} onChange={e => setFinancials(p => ({ ...p, amountPaid: e.target.value }))} />
+            </FormRow>
             <FormRow label="Paid To (Type)">
               <select style={inputStyle} value={paymentDetails.paymentRecipientType} onChange={e => setPaymentDetails(p => ({ ...p, paymentRecipientType: e.target.value }))}>
                 <option value="vendor">Vendor</option>
@@ -385,13 +398,35 @@ function RfaDetailContent() {
             <FormRow label="Recipient Name">
               <input style={inputStyle} value={paymentDetails.paymentRecipientName} onChange={e => setPaymentDetails(p => ({ ...p, paymentRecipientName: e.target.value }))} />
             </FormRow>
+            <FormRow label="Payment Method">
+              <select style={inputStyle} value={financials.paymentMethod} onChange={e => setFinancials(p => ({ ...p, paymentMethod: e.target.value }))}>
+                <option value="check">Check</option>
+                <option value="ach">ACH Transfer</option>
+                <option value="paypal">PayPal</option>
+                <option value="credit_card">Credit Card</option>
+                <option value="other">Other</option>
+              </select>
+            </FormRow>
+            <FormRow label="Payment Date">
+              <input style={inputStyle} type="date" value={financials.paymentDate ? financials.paymentDate.slice(0, 10) : ''} onChange={e => setFinancials(p => ({ ...p, paymentDate: e.target.value }))} />
+            </FormRow>
+            <FormRow label="Payment Reference Number">
+              <input style={inputStyle} value={financials.paymentReferenceNumber} onChange={e => setFinancials(p => ({ ...p, paymentReferenceNumber: e.target.value }))} />
+            </FormRow>
           </div>
           <FormRow label="What the funds are being used for">
             <textarea style={{ ...inputStyle, resize: 'vertical' } as React.CSSProperties} rows={2} value={paymentDetails.fundsUsage} onChange={e => setPaymentDetails(p => ({ ...p, fundsUsage: e.target.value }))} />
           </FormRow>
+          <div style={{ marginTop: '14px' }}>
+            <ReceiptUploader label="Receipt" value={paymentDetails.receiptUrl} onChange={url => setPaymentDetails(p => ({ ...p, receiptUrl: url }))} />
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', cursor: 'pointer' }}>
+            <input type="checkbox" checked={financials.paymentCompleted} onChange={e => setFinancials(p => ({ ...p, paymentCompleted: e.target.checked }))} />
+            Payment completed
+          </label>
           <div style={{ marginTop: '16px' }}>
-            <button onClick={savePaymentDetails} disabled={saving === 'payment-details'} style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #E7421B, #F8C38F)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving === 'payment-details' ? 'not-allowed' : 'pointer', opacity: saving === 'payment-details' ? 0.6 : 1, fontFamily: 'inherit' }}>
-              {saving === 'payment-details' ? 'Saving…' : 'Save Payment Details'}
+            <button onClick={savePaymentExecution} disabled={saving === 'payment-execution'} style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #E7421B, #F8C38F)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving === 'payment-execution' ? 'not-allowed' : 'pointer', opacity: saving === 'payment-execution' ? 0.6 : 1, fontFamily: 'inherit' }}>
+              {saving === 'payment-execution' ? 'Saving…' : 'Save Payment Details'}
             </button>
           </div>
         </div>
