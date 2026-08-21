@@ -273,6 +273,7 @@ function RfaDetailContent() {
                 <option value="check">Check</option>
                 <option value="ach">ACH Transfer</option>
                 <option value="paypal">PayPal</option>
+                <option value="credit_card">Credit Card</option>
                 <option value="other">Other</option>
               </select>
             </FormRow>
