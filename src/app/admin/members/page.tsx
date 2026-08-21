@@ -7,7 +7,7 @@ import { User, PLAN_CONFIG, PlanKey } from '@/lib/types';
 import styles from '../page.module.css';
 import { useToast } from '@/components/shared/Toast';
 import { haptic } from '@/lib/haptics';
-import { Shield, UserX, Users, Download, Search, UserCheck, Crown, CheckSquare, Square, Minus, Trash2, X, Mail, Calendar, Vote, Award } from 'lucide-react';
+import { Shield, UserX, Users, Download, Search, UserCheck, Crown, CheckSquare, Square, Minus, Trash2, X, Mail, Calendar, Vote, Award, RotateCcw } from 'lucide-react';
 
 type RoleFilter = 'all' | 'member' | 'moderator' | 'admin';
 type PlanFilter = 'all' | 'faith_fighter' | 'none';
@@ -52,7 +52,7 @@ function MembersContent() {
             .finally(() => setLoading(false));
     }, []);
 
-    const updateMember = useCallback(async (id: string, body: { role?: string }, successMsg: string) => {
+    const updateMember = useCallback(async (id: string, body: { role?: string; isActive?: boolean }, successMsg: string) => {
         setActionLoading(id);
         try {
             const res = await fetch(`/api/admin/members/${id}`, {
@@ -62,13 +62,14 @@ function MembersContent() {
                 body: JSON.stringify(body),
             });
             if (res.ok) {
-                if (body.role) {
-                    setMembers(prev => prev.map(m => m.id === id ? { ...m, role: body.role as User['role'] } : m));
-                }
+                setMembers(prev => prev.map(m => m.id === id
+                    ? { ...m, ...(body.role ? { role: body.role as User['role'] } : {}), ...(body.isActive !== undefined ? { isActive: body.isActive } : {}) }
+                    : m));
                 haptic('success');
                 toast(successMsg, 'success');
             } else {
-                toast('Action failed. Please try again.', 'error');
+                const data = await res.json().catch(() => ({}));
+                toast(data.message || 'Action failed. Please try again.', 'error');
             }
         } catch {
             toast('Action failed. Please try again.', 'error');
@@ -455,7 +456,18 @@ function MembersContent() {
                                                     {initial}
                                                 </div>
                                                 <div>
-                                                    <strong style={{ display: 'block', color: 'rgba(255,255,255,0.85)' }}>{member.name}</strong>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <strong style={{ display: 'block', color: 'rgba(255,255,255,0.85)' }}>{member.name}</strong>
+                                                        {member.isActive === false && (
+                                                            <span style={{
+                                                                display: 'inline-block', padding: '2px 8px', borderRadius: '20px',
+                                                                background: 'rgba(231,66,27,0.15)', color: '#F8C38F',
+                                                                fontSize: '10px', fontWeight: 700, whiteSpace: 'nowrap',
+                                                            }}>
+                                                                Deactivated
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{member.email}</div>
                                                 </div>
                                             </div>
@@ -557,19 +569,31 @@ function MembersContent() {
                                                 >
                                                     <Shield size={12} /> Make Mod
                                                 </button>
-                                                <button
-                                                    className={styles.actionBtn}
-                                                    disabled={actionLoading === member.id}
-                                                    onClick={() => {
-                                                        if (confirm(`Deactivate ${member.name}? They will be changed to a free tier and lose access.`)) {
-                                                            updateMember(member.id, { role: 'member' }, `${member.name} deactivated`);
-                                                        }
-                                                    }}
-                                                    style={{ background: 'rgba(231,66,27,0.15)', borderColor: 'rgba(231,66,27,0.3)', color: '#F8C38F', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', margin: 0 }}
-                                                    title="Deactivate member"
-                                                >
-                                                    <UserX size={12} /> Deactivate
-                                                </button>
+                                                {member.isActive === false ? (
+                                                    <button
+                                                        className={styles.actionBtn}
+                                                        disabled={actionLoading === member.id}
+                                                        onClick={() => updateMember(member.id, { isActive: true }, `${member.name} reactivated`)}
+                                                        style={{ background: 'rgba(74,222,128,0.15)', borderColor: 'rgba(74,222,128,0.3)', color: '#4ade80', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', margin: 0 }}
+                                                        title="Reactivate member"
+                                                    >
+                                                        <RotateCcw size={12} /> Activate
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        className={styles.actionBtn}
+                                                        disabled={actionLoading === member.id}
+                                                        onClick={() => {
+                                                            if (confirm(`Deactivate ${member.name}? They will be immediately signed out and blocked from logging in until reactivated.`)) {
+                                                                updateMember(member.id, { isActive: false }, `${member.name} deactivated`);
+                                                            }
+                                                        }}
+                                                        style={{ background: 'rgba(231,66,27,0.15)', borderColor: 'rgba(231,66,27,0.3)', color: '#F8C38F', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', margin: 0 }}
+                                                        title="Deactivate member"
+                                                    >
+                                                        <UserX size={12} /> Deactivate
+                                                    </button>
+                                                )}
                                                 <button
                                                     className={styles.actionBtn}
                                                     disabled={actionLoading === member.id}
@@ -636,6 +660,7 @@ function MembersContent() {
                         <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                             {[
                                 { icon: <Shield size={14} color="#a78bfa" />, label: 'Role', value: profileMember.role.charAt(0).toUpperCase() + profileMember.role.slice(1) },
+                                { icon: <UserX size={14} color={profileMember.isActive === false ? '#F8C38F' : '#4ade80'} />, label: 'Account Status', value: profileMember.isActive === false ? 'Deactivated' : 'Active' },
                                 { icon: <Crown size={14} color="#4ade80" />, label: 'Plan', value: profileMember.plan ? PLAN_CONFIG[profileMember.plan as PlanKey].name : 'No Plan' },
                                 { icon: <UserCheck size={14} color="#60a5fa" />, label: 'Type', value: profileMember.userType ? profileMember.userType.charAt(0).toUpperCase() + profileMember.userType.slice(1) : '—' },
                                 { icon: <Vote size={14} color="#60a5fa" />, label: 'Votes', value: `${profileMember.votesRemaining ?? 0} / ${profileMember.votesTotal ?? 0}` },
