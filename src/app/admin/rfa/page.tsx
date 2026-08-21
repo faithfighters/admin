@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { HeartHandshake } from 'lucide-react';
+import { HeartHandshake, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 import { useToast } from '@/components/shared/Toast';
@@ -62,6 +62,7 @@ function RfaContent() {
   const [requests, setRequests] = useState<AssistanceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -75,6 +76,22 @@ function RfaContent() {
   }, [statusFilter]);
 
   useEffect(() => { load(); }, [load]);
+
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`Permanently delete "${title}"? This cannot be undone.`)) return;
+    setDeletingId(id);
+    const res = await fetch(`/api/admin/assistance-requests/${id}`, {
+      method: 'DELETE', credentials: 'include',
+    });
+    setDeletingId(null);
+    if (res.ok) {
+      setRequests(prev => prev.filter(r => r.id !== id));
+      toast('Request deleted.', 'success');
+    } else {
+      const data = await res.json().catch(() => ({}));
+      toast(data.message || 'Failed to delete request.', 'error');
+    }
+  };
 
   if (loading) return <p style={{ color: 'rgba(255,255,255,0.85)' }}>Loading...</p>;
 
@@ -137,11 +154,12 @@ function RfaContent() {
                 <th>Approved</th>
                 <th>Paid</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {requests.length === 0 && (
-                <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.4)' }}>
+                <tr><td colSpan={8} style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.4)' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                     <HeartHandshake size={28} color="rgba(255,255,255,0.25)" />
                     No assistance requests yet.
@@ -164,6 +182,21 @@ function RfaContent() {
                       <td>{r.amountApproved != null ? `$${r.amountApproved.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '—'}</td>
                       <td style={{ fontWeight: 700, color: '#4ade80' }}>{r.amountPaid ? `$${r.amountPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '—'}</td>
                       <td><span className={styles.statusBadge} style={sc}>{STATUS_LABELS[r.status] || r.status}</span></td>
+                      <td onClick={e => e.stopPropagation()}>
+                        <button
+                          onClick={() => handleDelete(r.id, r.requestTitle)}
+                          disabled={deletingId === r.id}
+                          title="Delete request"
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 10px', borderRadius: '8px',
+                            border: '1px solid rgba(220,38,38,0.3)', background: 'rgba(220,38,38,0.12)', color: '#fca5a5',
+                            fontWeight: 700, fontSize: '12px', cursor: deletingId === r.id ? 'not-allowed' : 'pointer',
+                            opacity: deletingId === r.id ? 0.6 : 1, fontFamily: 'inherit',
+                          }}
+                        >
+                          <Trash2 size={12} /> {deletingId === r.id ? 'Deleting…' : 'Delete'}
+                        </button>
+                      </td>
                     </motion.tr>
                   );
                 })}

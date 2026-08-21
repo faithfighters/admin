@@ -77,6 +77,12 @@ function RfaDetailContent() {
   const [request, setRequest] = useState<AssistanceRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const [editingCaseInfo, setEditingCaseInfo] = useState(false);
+  const [caseInfo, setCaseInfo] = useState({
+    requestTitle: '', category: '', description: '', amountRequested: '',
+  });
 
   const [financials, setFinancials] = useState({
     amountApproved: '', amountPaid: '', paymentDate: '', paymentMethod: 'check',
@@ -93,6 +99,12 @@ function RfaDetailContent() {
       .then(d => {
         const r: AssistanceRequest = d.request;
         setRequest(r);
+        setCaseInfo({
+          requestTitle: r.requestTitle || '',
+          category: r.category || '',
+          description: r.description || '',
+          amountRequested: r.amountRequested != null ? String(r.amountRequested) : '',
+        });
         setFinancials({
           amountApproved: r.amountApproved != null ? String(r.amountApproved) : '',
           amountPaid: r.amountPaid != null ? String(r.amountPaid) : '',
@@ -115,6 +127,41 @@ function RfaDetailContent() {
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
+
+  const saveCaseInfo = async () => {
+    setSaving('case-info');
+    const res = await fetch(`/api/admin/assistance-requests/${id}`, {
+      method: 'PATCH', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requestTitle: caseInfo.requestTitle,
+        category: caseInfo.category,
+        description: caseInfo.description,
+        amountRequested: caseInfo.amountRequested ? Number(caseInfo.amountRequested) : undefined,
+      }),
+    });
+    setSaving(null);
+    if (res.ok) { toast('Request details saved.', 'success'); setEditingCaseInfo(false); load(); }
+    else {
+      const data = await res.json().catch(() => ({}));
+      toast(data.message || 'Failed to save request details.', 'error');
+    }
+  };
+
+  const deleteRequest = async () => {
+    if (!request) return;
+    if (!confirm(`Permanently delete "${request.requestTitle}"? This cannot be undone.`)) return;
+    setDeleting(true);
+    const res = await fetch(`/api/admin/assistance-requests/${id}`, {
+      method: 'DELETE', credentials: 'include',
+    });
+    setDeleting(false);
+    if (res.ok) { toast('Request deleted.', 'success'); router.push('/admin/rfa'); }
+    else {
+      const data = await res.json().catch(() => ({}));
+      toast(data.message || 'Failed to delete request.', 'error');
+    }
+  };
 
   const setStage = async (status: string) => {
     if (!request) return;
@@ -231,19 +278,84 @@ function RfaDetailContent() {
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <div style={{ background: '#15131f', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
-            <div>
-              <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', margin: '0 0 4px' }}>{request.requestTitle}</h1>
-              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: 0 }}>
-                {request.memberName} · <span style={{ textTransform: 'capitalize' }}>{request.category}</span> · Submitted {new Date(request.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Requested</div>
-              <div style={{ fontSize: '24px', fontWeight: 900, color: '#4ade80' }}>${request.amountRequested.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            {editingCaseInfo ? (
+              <div style={{ flex: 1, minWidth: '260px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <FormRow label="Title">
+                  <input style={inputStyle} value={caseInfo.requestTitle} onChange={e => setCaseInfo(p => ({ ...p, requestTitle: e.target.value }))} />
+                </FormRow>
+                <FormRow label="Category">
+                  <input style={inputStyle} value={caseInfo.category} onChange={e => setCaseInfo(p => ({ ...p, category: e.target.value }))} />
+                </FormRow>
+                <FormRow label="Amount Requested ($)">
+                  <input style={inputStyle} type="number" min="0" step="0.01" value={caseInfo.amountRequested} onChange={e => setCaseInfo(p => ({ ...p, amountRequested: e.target.value }))} />
+                </FormRow>
+              </div>
+            ) : (
+              <div>
+                <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', margin: '0 0 4px' }}>{request.requestTitle}</h1>
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: 0 }}>
+                  {request.memberName} · <span style={{ textTransform: 'capitalize' }}>{request.category}</span> · Submitted {new Date(request.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
+              {!editingCaseInfo && (
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Requested</div>
+                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#4ade80' }}>${request.amountRequested.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {editingCaseInfo ? (
+                  <>
+                    <button
+                      onClick={saveCaseInfo}
+                      disabled={saving === 'case-info'}
+                      style={{ padding: '7px 14px', background: 'linear-gradient(135deg, #E7421B, #F8C38F)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: saving === 'case-info' ? 'not-allowed' : 'pointer', opacity: saving === 'case-info' ? 0.6 : 1, fontFamily: 'inherit' }}
+                    >
+                      {saving === 'case-info' ? 'Saving…' : 'Save'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingCaseInfo(false);
+                        setCaseInfo({
+                          requestTitle: request.requestTitle || '', category: request.category || '',
+                          description: request.description || '', amountRequested: request.amountRequested != null ? String(request.amountRequested) : '',
+                        });
+                      }}
+                      style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setEditingCaseInfo(true)}
+                      style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={deleteRequest}
+                      disabled={deleting}
+                      style={{ padding: '7px 14px', background: 'rgba(220,38,38,0.12)', color: '#fca5a5', border: '1px solid rgba(220,38,38,0.3)', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1, fontFamily: 'inherit' }}
+                    >
+                      {deleting ? 'Deleting…' : 'Delete'}
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6, marginBottom: '16px' }}>{request.description}</p>
+          {editingCaseInfo ? (
+            <FormRow label="Description">
+              <textarea style={{ ...inputStyle, resize: 'vertical' } as React.CSSProperties} rows={3} value={caseInfo.description} onChange={e => setCaseInfo(p => ({ ...p, description: e.target.value }))} />
+            </FormRow>
+          ) : (
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6, marginBottom: '16px' }}>{request.description}</p>
+          )}
 
           {!!request.requiredVotes && (
             <div style={{ marginBottom: '16px' }}>
