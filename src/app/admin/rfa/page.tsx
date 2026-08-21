@@ -32,8 +32,8 @@ const STATUS_LABELS: Record<string, string> = {
   approved: 'Approved',
   funding_in_progress: 'Funding in Progress',
   payment_scheduled: 'Payment Scheduled',
-  payment_completed: 'Payment Completed',
   testimonial_received: 'Testimonial Received',
+  payment_completed: 'Payment Completed',
   case_closed: 'Case Closed',
 };
 

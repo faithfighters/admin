@@ -2,14 +2,16 @@
 
 import { Check } from 'lucide-react';
 
+// Testimonial is collected before payment is marked complete — recipients
+// are far less likely to follow through once they already have the funds.
 export const RFA_STAGES = [
   { key: 'submitted', label: 'Submitted' },
   { key: 'under_review', label: 'Under Review' },
   { key: 'approved', label: 'Approved' },
   { key: 'funding_in_progress', label: 'Funding in Progress' },
   { key: 'payment_scheduled', label: 'Payment Scheduled' },
-  { key: 'payment_completed', label: 'Payment Completed' },
   { key: 'testimonial_received', label: 'Testimonial Received' },
+  { key: 'payment_completed', label: 'Payment Completed' },
   { key: 'case_closed', label: 'Case Closed' },
 ] as const;
 
