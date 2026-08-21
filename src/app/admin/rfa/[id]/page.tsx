@@ -150,7 +150,7 @@ function RfaDetailContent() {
 
   const deleteRequest = async () => {
     if (!request) return;
-    if (!confirm(`Permanently delete "${request.requestTitle}"? This cannot be undone.`)) return;
+    if (!confirm(`Permanently delete "${request.requestTitle}"? This also deletes its linked video, if any. This cannot be undone.`)) return;
     setDeleting(true);
     const res = await fetch(`/api/admin/assistance-requests/${id}`, {
       method: 'DELETE', credentials: 'include',
@@ -390,6 +390,18 @@ function RfaDetailContent() {
         {/* Status stepper */}
         <div style={{ background: '#15131f', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', margin: '0 0 20px' }}>Case Status</h2>
+          {(request.status === 'video_rejected' || request.status === 'funding_failed') && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 14px', borderRadius: '10px',
+              background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.25)', color: '#fca5a5',
+              fontSize: '13px', lineHeight: 1.5, marginBottom: '18px',
+            }}>
+              {request.status === 'video_rejected'
+                ? 'This request was automatically closed because its linked video was rejected in moderation. The member was notified by email.'
+                : 'This request was automatically closed because its voting cycle ended without reaching the funding goal. The member was notified by email.'}
+              {' '}Select a stage below to manually reopen it if this was in error.
+            </div>
+          )}
           <RfaStepper status={request.status} onSelectStage={setStage} disabled={saving === 'status'} />
         </div>
 

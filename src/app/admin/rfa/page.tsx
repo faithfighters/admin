@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { HeartHandshake, Trash2 } from 'lucide-react';
+import { HeartHandshake, Trash2, Search, CheckSquare, Square } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 import { useToast } from '@/components/shared/Toast';
@@ -35,6 +35,8 @@ const STATUS_LABELS: Record<string, string> = {
   testimonial_received: 'Testimonial Received',
   payment_completed: 'Payment Completed',
   case_closed: 'Case Closed',
+  video_rejected: 'Video Rejected',
+  funding_failed: 'Funding Failed',
 };
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
@@ -46,6 +48,8 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   payment_completed:    { bg: 'rgba(34,197,94,0.15)', color: '#4ade80' },
   testimonial_received: { bg: 'rgba(52,211,153,0.15)', color: '#34d399' },
   case_closed:          { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.45)' },
+  video_rejected:       { bg: 'rgba(220,38,38,0.15)', color: '#fca5a5' },
+  funding_failed:       { bg: 'rgba(220,38,38,0.15)', color: '#fca5a5' },
 };
 
 export default function AdminRfaPage() {
@@ -63,6 +67,9 @@ function RfaContent() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -78,7 +85,7 @@ function RfaContent() {
   useEffect(() => { load(); }, [load]);
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Permanently delete "${title}"? This cannot be undone.`)) return;
+    if (!confirm(`Permanently delete "${title}"? This also deletes its linked video, if any. This cannot be undone.`)) return;
     setDeletingId(id);
     const res = await fetch(`/api/admin/assistance-requests/${id}`, {
       method: 'DELETE', credentials: 'include',
@@ -91,6 +98,43 @@ function RfaContent() {
       const data = await res.json().catch(() => ({}));
       toast(data.message || 'Failed to delete request.', 'error');
     }
+  };
+
+  const filtered = requests.filter(r =>
+    r.memberName.toLowerCase().includes(search.toLowerCase()) ||
+    r.requestTitle.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const allSelected = filtered.length > 0 && filtered.every(r => selectedIds.has(r.id));
+  const toggleSelectAll = () => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (allSelected) filtered.forEach(r => next.delete(r.id));
+      else filtered.forEach(r => next.add(r.id));
+      return next;
+    });
+  };
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`Permanently delete ${selectedIds.size} request${selectedIds.size > 1 ? 's' : ''}? This also deletes their linked videos, if any. This cannot be undone.`)) return;
+    setBulkDeleting(true);
+    const ids = Array.from(selectedIds);
+    const results = await Promise.allSettled(ids.map(id =>
+      fetch(`/api/admin/assistance-requests/${id}`, { method: 'DELETE', credentials: 'include' })
+    ));
+    const succeeded = new Set(ids.filter((_, i) => results[i].status === 'fulfilled' && (results[i] as PromiseFulfilledResult<Response>).value.ok));
+    setRequests(prev => prev.filter(r => !succeeded.has(r.id)));
+    setSelectedIds(new Set());
+    setBulkDeleting(false);
+    toast(`Deleted ${succeeded.size} of ${ids.length} request${ids.length > 1 ? 's' : ''}.`, succeeded.size === ids.length ? 'success' : 'error');
   };
 
   if (loading) return <p style={{ color: 'rgba(255,255,255,0.85)' }}>Loading...</p>;
@@ -107,6 +151,36 @@ function RfaContent() {
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>Manage member assistance requests from submission through payment and testimonial.</p>
         </div>
       </motion.div>
+
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ position: 'relative', flex: '1 1 220px', maxWidth: '320px' }}>
+          <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' }} />
+          <input
+            type="text"
+            placeholder="Search by member or title..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{
+              width: '100%', padding: '8px 12px 8px 34px', borderRadius: '10px', fontSize: '13px',
+              border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: '#ffffff',
+              outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
+            }}
+          />
+        </div>
+        {selectedIds.size > 0 && (
+          <button
+            onClick={handleBulkDelete}
+            disabled={bulkDeleting}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '10px',
+              border: '1px solid rgba(220,38,38,0.3)', background: 'rgba(220,38,38,0.12)', color: '#fca5a5',
+              fontWeight: 700, fontSize: '13px', cursor: bulkDeleting ? 'not-allowed' : 'pointer', opacity: bulkDeleting ? 0.6 : 1, fontFamily: 'inherit',
+            }}
+          >
+            <Trash2 size={14} /> {bulkDeleting ? 'Deleting…' : `Delete ${selectedIds.size} selected`}
+          </button>
+        )}
+      </div>
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <button
@@ -147,6 +221,15 @@ function RfaContent() {
           <table>
             <thead>
               <tr>
+                <th style={{ width: '36px' }}>
+                  <button
+                    onClick={toggleSelectAll}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', color: 'rgba(255,255,255,0.5)' }}
+                    aria-label="Select all"
+                  >
+                    {allSelected ? <CheckSquare size={15} color="#60a5fa" /> : <Square size={15} />}
+                  </button>
+                </th>
                 <th>Member</th>
                 <th>Title</th>
                 <th>Category</th>
@@ -158,23 +241,33 @@ function RfaContent() {
               </tr>
             </thead>
             <tbody>
-              {requests.length === 0 && (
-                <tr><td colSpan={8} style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.4)' }}>
+              {filtered.length === 0 && (
+                <tr><td colSpan={9} style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.4)' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                     <HeartHandshake size={28} color="rgba(255,255,255,0.25)" />
-                    No assistance requests yet.
+                    {requests.length === 0 ? 'No assistance requests yet.' : 'No requests match your search.'}
                   </div>
                 </td></tr>
               )}
               <AnimatePresence>
-                {requests.map((r, i) => {
+                {filtered.map((r, i) => {
                   const sc = STATUS_COLORS[r.status] || STATUS_COLORS.submitted;
+                  const isSelected = selectedIds.has(r.id);
                   return (
                     <motion.tr key={r.id}
                       custom={i} variants={rowAnim} initial="hidden" animate="visible"
                       exit={{ opacity: 0, transition: { duration: 0.2 } }}
                       style={{ cursor: 'pointer' }} onClick={() => router.push(`/admin/rfa/${r.id}`)}
                     >
+                      <td onClick={e => e.stopPropagation()}>
+                        <button
+                          onClick={() => toggleSelect(r.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', color: 'rgba(255,255,255,0.5)' }}
+                          aria-label={`Select ${r.requestTitle}`}
+                        >
+                          {isSelected ? <CheckSquare size={15} color="#60a5fa" /> : <Square size={15} />}
+                        </button>
+                      </td>
                       <td><strong>{r.memberName}</strong></td>
                       <td>{r.requestTitle}</td>
                       <td style={{ textTransform: 'capitalize' }}>{r.category}</td>

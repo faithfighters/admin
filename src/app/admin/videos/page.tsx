@@ -129,7 +129,7 @@ function VideoModerationSection() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Permanently delete this video? This removes it from the platform and storage — it cannot be undone.')) return;
+        if (!confirm('Permanently delete this video? This removes it from the platform and storage, and deletes its linked assistance request if any — it cannot be undone.')) return;
         setActionLoading(id + 'delete');
         try {
             const res = await fetch(`/api/admin/videos/${id}`, {
