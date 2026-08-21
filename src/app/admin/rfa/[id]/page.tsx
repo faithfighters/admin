@@ -144,7 +144,10 @@ function RfaDetailContent() {
     });
     setSaving(null);
     if (res.ok) { toast('Financials saved.', 'success'); load(); }
-    else toast('Failed to save financials.', 'error');
+    else {
+      const data = await res.json().catch(() => ({}));
+      toast(data.message || 'Failed to save financials.', 'error');
+    }
   };
 
   const requestTestimonial = async () => {
@@ -255,6 +258,77 @@ function RfaDetailContent() {
           <RfaStepper status={request.status} onSelectStage={setStage} disabled={saving === 'status'} />
         </div>
 
+        {/* Testimonial — collected before payment is marked complete */}
+        <div style={{ background: '#15131f', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', margin: '0 0 16px' }}>Testimonial</h2>
+          {request.testimonial?.status === 'submitted' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
+                Submitted {request.testimonial.submittedAt ? new Date(request.testimonial.submittedAt).toLocaleString() : ''}
+              </div>
+              {request.testimonial.type === 'written' && (
+                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, fontStyle: 'italic', margin: 0 }}>
+                  &ldquo;{request.testimonial.writtenText}&rdquo;
+                </p>
+              )}
+              {request.testimonial.type === 'video' && request.testimonial.videoUrl && (
+                <a href={request.testimonial.videoUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#60a5fa', fontSize: '13px' }}>
+                  <VideoIcon size={16} /> View video testimonial
+                </a>
+              )}
+              {request.testimonial.photoUrl && (
+                <a href={request.testimonial.photoUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#60a5fa', fontSize: '13px' }}>
+                  <ImageIcon size={16} /> View photo
+                </a>
+              )}
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {request.status !== 'case_closed' && (
+                  <button
+                    onClick={approveTestimonial}
+                    disabled={saving === 'approve-testimonial'}
+                    style={{ padding: '8px 16px', background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving === 'approve-testimonial' ? 'not-allowed' : 'pointer', opacity: saving === 'approve-testimonial' ? 0.6 : 1, fontFamily: 'inherit' }}
+                  >
+                    {saving === 'approve-testimonial' ? 'Approving…' : 'Approve & Close Case'}
+                  </button>
+                )}
+                <button
+                  onClick={rejectTestimonial}
+                  disabled={saving === 'reject-testimonial'}
+                  style={{ padding: '8px 16px', background: 'rgba(239,68,68,0.12)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving === 'reject-testimonial' ? 'not-allowed' : 'pointer', opacity: saving === 'reject-testimonial' ? 0.6 : 1, fontFamily: 'inherit' }}
+                >
+                  {saving === 'reject-testimonial' ? 'Removing…' : 'Reject & Remove'}
+                </button>
+              </div>
+            </div>
+          ) : request.status === 'payment_scheduled' || request.status === 'testimonial_received' || request.status === 'payment_completed' || request.status === 'case_closed' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', margin: 0 }}>
+                No testimonial submitted yet. The member can submit one once notified.
+              </p>
+              <div>
+                <button
+                  onClick={requestTestimonial}
+                  disabled={saving === 'request-testimonial'}
+                  style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #E7421B, #F8C38F)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving === 'request-testimonial' ? 'not-allowed' : 'pointer', opacity: saving === 'request-testimonial' ? 0.6 : 1, fontFamily: 'inherit' }}
+                >
+                  {saving === 'request-testimonial'
+                    ? 'Sending…'
+                    : request.testimonialRequestedAt ? 'Resend Notification' : 'Notify Recipient — Request Testimonial'}
+                </button>
+                {request.testimonialRequestedAt && (
+                  <span style={{ marginLeft: '10px', fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
+                    ✓ Requested on {new Date(request.testimonialRequestedAt).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', margin: 0 }}>
+              No testimonial submitted yet. The member can submit one once the case reaches Payment Scheduled.
+            </p>
+          )}
+        </div>
+
         {/* Financial tracking */}
         <div style={{ background: '#15131f', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', margin: '0 0 16px' }}>Financial Tracking</h2>
@@ -320,77 +394,6 @@ function RfaDetailContent() {
               {saving === 'payment-details' ? 'Saving…' : 'Save Payment Details'}
             </button>
           </div>
-        </div>
-
-        {/* Testimonial */}
-        <div style={{ background: '#15131f', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', margin: '0 0 16px' }}>Testimonial</h2>
-          {request.testimonial?.status === 'submitted' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
-                Submitted {request.testimonial.submittedAt ? new Date(request.testimonial.submittedAt).toLocaleString() : ''}
-              </div>
-              {request.testimonial.type === 'written' && (
-                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, fontStyle: 'italic', margin: 0 }}>
-                  &ldquo;{request.testimonial.writtenText}&rdquo;
-                </p>
-              )}
-              {request.testimonial.type === 'video' && request.testimonial.videoUrl && (
-                <a href={request.testimonial.videoUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#60a5fa', fontSize: '13px' }}>
-                  <VideoIcon size={16} /> View video testimonial
-                </a>
-              )}
-              {request.testimonial.photoUrl && (
-                <a href={request.testimonial.photoUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#60a5fa', fontSize: '13px' }}>
-                  <ImageIcon size={16} /> View photo
-                </a>
-              )}
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                {request.status !== 'case_closed' && (
-                  <button
-                    onClick={approveTestimonial}
-                    disabled={saving === 'approve-testimonial'}
-                    style={{ padding: '8px 16px', background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving === 'approve-testimonial' ? 'not-allowed' : 'pointer', opacity: saving === 'approve-testimonial' ? 0.6 : 1, fontFamily: 'inherit' }}
-                  >
-                    {saving === 'approve-testimonial' ? 'Approving…' : 'Approve & Close Case'}
-                  </button>
-                )}
-                <button
-                  onClick={rejectTestimonial}
-                  disabled={saving === 'reject-testimonial'}
-                  style={{ padding: '8px 16px', background: 'rgba(239,68,68,0.12)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving === 'reject-testimonial' ? 'not-allowed' : 'pointer', opacity: saving === 'reject-testimonial' ? 0.6 : 1, fontFamily: 'inherit' }}
-                >
-                  {saving === 'reject-testimonial' ? 'Removing…' : 'Reject & Remove'}
-                </button>
-              </div>
-            </div>
-          ) : request.status === 'payment_completed' || request.status === 'testimonial_received' || request.status === 'case_closed' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', margin: 0 }}>
-                No testimonial submitted yet. The member can submit one once notified.
-              </p>
-              <div>
-                <button
-                  onClick={requestTestimonial}
-                  disabled={saving === 'request-testimonial'}
-                  style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #E7421B, #F8C38F)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving === 'request-testimonial' ? 'not-allowed' : 'pointer', opacity: saving === 'request-testimonial' ? 0.6 : 1, fontFamily: 'inherit' }}
-                >
-                  {saving === 'request-testimonial'
-                    ? 'Sending…'
-                    : request.testimonialRequestedAt ? 'Resend Notification' : 'Notify Recipient — Request Testimonial'}
-                </button>
-                {request.testimonialRequestedAt && (
-                  <span style={{ marginLeft: '10px', fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
-                    ✓ Requested on {new Date(request.testimonialRequestedAt).toLocaleDateString()}
-                  </span>
-                )}
-              </div>
-            </div>
-          ) : (
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', margin: 0 }}>
-              No testimonial submitted yet. The member can submit one once the case reaches Payment Completed.
-            </p>
-          )}
         </div>
 
         {/* Status history */}
