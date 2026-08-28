@@ -9,8 +9,13 @@ on:
 
 env:
   DOCKER_IMAGE: kchauhan023/faithfighters-admin
-  APP_PORT_PROD: 4000
-  APP_PORT_STAGE: 4001
+  # The app's start script hardcodes `next start -p 3001` and ignores the
+  # PORT env var passed into the container, so this must match that (not
+  # whatever port we'd like it to use) — otherwise the health check probes
+  # a port nothing is listening on and the deploy always looks "unhealthy"
+  # even when it isn't.
+  APP_PORT_PROD: 3001
+  APP_PORT_STAGE: 3001
   CONTAINER_NAME_PROD: faithfighters-admin
   CONTAINER_NAME_STAGE: faithfighters-admin-stage
 
