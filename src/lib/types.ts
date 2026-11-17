@@ -152,7 +152,7 @@ export interface SiteContentPageManifest {
     fields: SiteContentFieldDef[];
 }
 
-const _PLAN = { name: 'Faith Fighter', price: 30, votes: 30 } as const;
+const _PLAN = { name: 'Faith Fighter', price: 9.95, votes: 30 } as const;
 
 export const PLAN_CONFIG = {
     faith_fighter: _PLAN,

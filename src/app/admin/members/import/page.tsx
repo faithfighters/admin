@@ -93,7 +93,7 @@ function ImportMembersContent() {
                 borderRadius: 14, padding: '16px 18px', marginBottom: 24, fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6,
             }}>
                 <strong style={{ color: '#93c5fd' }}>Where to get the list:</strong> Stripe Dashboard → Customers
-                (or Billing → Subscriptions) → filter to active subscriptions on the Faith Fighter $30 price →
+                (or Billing → Subscriptions) → filter to active subscriptions on the Faith Fighter price →
                 Export. Paste rows below as <code>email,stripeCustomerId</code> — one per line. The Stripe
                 Customer ID is optional (we&apos;ll look it up by email if it&apos;s left off), but including it
                 avoids ambiguity if an email matches more than one customer.
